@@ -11,17 +11,19 @@ interface Talent {
   id: string;
   utilisateur_id: string;
   metier_principal: string;
-  pays: string;
-  ville: string;
   niveau_experience: string;
   disponibilite: string;
   competences_principales: string;
   avatar_url: string | null;
   video_url: string | null;
   preuve_url: string | null;
+  has_video: boolean | null;
+  has_photo: boolean | null;
   utilisateurs: {
     prenom: string;
     nom: string;
+    pays: string;
+    ville: string;
   } | null;
 }
 
@@ -90,8 +92,8 @@ function TalentCard({ talent }: { talent: Talent }) {
   const nomComplet = `${prenom} ${nom}`.trim() || "Talent";
   const competences = splitCompetences(talent.competences_principales ?? "");
   const dispo = DISPO_CONFIG[talent.disponibilite] ?? DISPO_CONFIG["négociable"];
-  const hasVideo = Boolean(talent.video_url);
-  const hasPhoto = Boolean(talent.preuve_url);
+  const hasVideo = talent.has_video ?? Boolean(talent.video_url);
+  const hasPhoto = talent.has_photo ?? Boolean(talent.preuve_url);
 
   return (
     <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
@@ -122,7 +124,7 @@ function TalentCard({ talent }: { talent: Talent }) {
         {/* Localisation */}
         <p className="text-xs text-gray-500 flex items-center gap-1">
           <span>📍</span>
-          {[talent.ville, talent.pays].filter(Boolean).join(", ") || "Localisation non renseignée"}
+          {[talent.utilisateurs?.ville, talent.utilisateurs?.pays].filter(Boolean).join(", ") || "Localisation non renseignée"}
         </p>
 
         {/* Niveau d'expérience */}
@@ -309,9 +311,13 @@ export default function AnnuairePage() {
           avatar_url,
           video_url,
           preuve_url,
+          has_video,
+          has_photo,
           utilisateurs (
             prenom,
-            nom
+            nom,
+            pays,
+            ville
           )
         `)
         .eq("profil_public", true)
@@ -344,8 +350,8 @@ export default function AnnuairePage() {
         if (!nomComplet.includes(q) && !metier.includes(q) && !competences.includes(q)) return false;
       }
       if (filters.metier && t.metier_principal !== filters.metier) return false;
-      if (filters.pays && t.pays !== filters.pays) return false;
-      if (filters.ville && !normalise(t.ville ?? "").includes(normalise(filters.ville))) return false;
+      if (filters.pays && t.utilisateurs?.pays !== filters.pays) return false;
+      if (filters.ville && !normalise(t.utilisateurs?.ville ?? "").includes(normalise(filters.ville))) return false;
       if (filters.disponibilite && t.disponibilite !== filters.disponibilite) return false;
       if (filters.niveau && t.niveau_experience !== filters.niveau) return false;
       return true;
