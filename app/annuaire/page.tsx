@@ -303,8 +303,6 @@ export default function AnnuairePage() {
           id,
           utilisateur_id,
           metier_principal,
-          pays,
-          ville,
           niveau_experience,
           disponibilite,
           competences_principales,
