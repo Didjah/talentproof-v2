@@ -318,7 +318,7 @@ export default function AnnuairePage() {
         .order("id", { ascending: false });
 
       if (error) {
-        setError("Impossible de charger l'annuaire. Veuillez réessayer.");
+        setError(error.message);
       } else {
         setTalents((data ?? []) as unknown as Talent[]);
       }
