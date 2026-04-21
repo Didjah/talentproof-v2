@@ -158,6 +158,7 @@ export default function ProfilPage() {
           attestation_url,
           certificat_url,
           lettre_url,
+          langues,
           whatsapp,
           appel_autorise,
           afficher_salaire,
@@ -168,8 +169,7 @@ export default function ProfilPage() {
             email,
             telephone,
             pays,
-            ville,
-            langues
+            ville
           )
         `)
         .eq("utilisateur_id", id)
@@ -187,7 +187,7 @@ export default function ProfilPage() {
           telephone: u.telephone ?? "",
           pays: u.pays ?? "",
           ville: u.ville ?? "",
-          langues: u.langues ?? "",
+          langues: (data as Record<string, unknown>).langues as string ?? "",
         } as Profil);
       }
       setLoading(false);
