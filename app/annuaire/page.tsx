@@ -15,7 +15,7 @@ interface Talent {
   disponibilite: string;
   competences_principales: string;
   avatar_url: string | null;
-  video_url: string | null;
+  video_presentation_url: string | null;
   preuve_url: string | null;
   has_video: boolean | null;
   has_photo: boolean | null;
@@ -92,7 +92,7 @@ function TalentCard({ talent }: { talent: Talent }) {
   const nomComplet = `${prenom} ${nom}`.trim() || "Talent";
   const competences = splitCompetences(talent.competences_principales ?? "");
   const dispo = DISPO_CONFIG[talent.disponibilite] ?? DISPO_CONFIG["négociable"];
-  const hasVideo = talent.has_video ?? Boolean(talent.video_url);
+  const hasVideo = talent.has_video ?? Boolean(talent.video_presentation_url);
   const hasPhoto = talent.has_photo ?? Boolean(talent.preuve_url);
 
   return (
@@ -307,7 +307,7 @@ export default function AnnuairePage() {
           disponibilite,
           competences_principales,
           avatar_url,
-          video_url,
+          video_presentation_url,
           preuve_url,
           has_video,
           has_photo,
