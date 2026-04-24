@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { supabase } from "@/src/lib/supabase";
 
+export const revalidate = 3600;
+
 const NAVY = "#1B3A6B";
 const GOLD = "#C9A84C";
 
@@ -62,7 +64,7 @@ export default async function Home() {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link href="/" className="shrink-0">
-            <img src="/logo.png" alt="TalentProof" height="40" />
+            <img src="/logo.png" alt="TalentProof" style={{ height: '36px', width: 'auto' }} />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
             <Link href="/annuaire" className="hover:text-[#1B3A6B] transition-colors">Annuaire</Link>
