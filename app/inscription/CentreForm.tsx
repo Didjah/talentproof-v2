@@ -73,7 +73,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-const inputCls = "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#1a5c3a] focus:ring-2 focus:ring-[#1a5c3a]/20 transition";
+const inputCls = "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#1B3A6B] focus:ring-2 focus:ring-[#1B3A6B]/20 transition";
 const selectCls = inputCls + " bg-white";
 const textareaCls = inputCls + " resize-none";
 
@@ -85,7 +85,7 @@ function FileInput({ label, accept, hint, onChange, value }: {
     <div className="flex flex-col gap-1">
       <span className="text-sm font-semibold text-gray-700">{label}</span>
       <button type="button" onClick={() => ref.current?.click()}
-        className="flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 px-4 py-3 text-sm text-gray-500 hover:border-[#1a5c3a] hover:text-[#1a5c3a] transition-colors text-left">
+        className="flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 px-4 py-3 text-sm text-gray-500 hover:border-[#1B3A6B] hover:text-[#1B3A6B] transition-colors text-left">
         <span className="text-2xl">📎</span>
         <span className="flex-1 truncate">{value ? value.name : "Choisir un fichier…"}</span>
         {value && (
@@ -107,19 +107,19 @@ function ProgressBar({ step }: { step: number }) {
         {ETAPES.map((label, i) => (
           <div key={i} className="flex flex-col items-center gap-1 flex-1">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-              i < step ? "bg-[#1a5c3a] border-[#1a5c3a] text-white"
-              : i === step ? "border-[#1a5c3a] text-[#1a5c3a] bg-white"
+              i < step ? "bg-[#1B3A6B] border-[#1B3A6B] text-white"
+              : i === step ? "border-[#1B3A6B] text-[#1B3A6B] bg-white"
               : "border-gray-200 text-gray-400 bg-white"
             }`}>
               {i < step ? "✓" : i + 1}
             </div>
-            <span className={`text-xs hidden sm:block ${i === step ? "text-[#1a5c3a] font-semibold" : "text-gray-400"}`}>{label}</span>
+            <span className={`text-xs hidden sm:block ${i === step ? "text-[#1B3A6B] font-semibold" : "text-gray-400"}`}>{label}</span>
           </div>
         ))}
       </div>
       <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all duration-500"
-          style={{ backgroundColor: "#1a5c3a", width: `${(step / (ETAPES.length - 1)) * 100}%` }} />
+          style={{ backgroundColor: "#1B3A6B", width: `${(step / (ETAPES.length - 1)) * 100}%` }} />
       </div>
     </div>
   );
@@ -132,12 +132,12 @@ function FormationRow({ formation, index, onChange, onRemove, canRemove }: {
   onChange: (i: number, key: keyof Formation, val: string) => void;
   onRemove: (i: number) => void; canRemove: boolean;
 }) {
-  const ic = "rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1a5c3a] focus:ring-1 focus:ring-[#1a5c3a]/20 transition w-full";
+  const ic = "rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1B3A6B] focus:ring-1 focus:ring-[#1B3A6B]/20 transition w-full";
   const sc = ic + " bg-white";
   return (
     <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-[#1a5c3a] uppercase tracking-wide">Formation {index + 1}</span>
+        <span className="text-xs font-bold text-[#1B3A6B] uppercase tracking-wide">Formation {index + 1}</span>
         {canRemove && (
           <button type="button" onClick={() => onRemove(index)}
             className="text-xs text-red-400 hover:text-red-600 font-semibold">Supprimer</button>
@@ -276,7 +276,7 @@ export function CentreForm() {
 
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-1" style={{ color: "#1a5c3a" }}>
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-1" style={{ color: "#1B3A6B" }}>
         Centre de Formation
       </h1>
       <p className="text-center text-gray-500 text-sm mb-8">
@@ -336,7 +336,7 @@ export function CentreForm() {
               ))}
               {errors.formations && <span className="text-xs text-red-500">{errors.formations}</span>}
               <button type="button" onClick={addFormation}
-                className="rounded-xl border-2 border-dashed border-[#1a5c3a]/40 py-2.5 text-sm font-semibold text-[#1a5c3a] hover:border-[#1a5c3a] hover:bg-[#f0f7f3] transition-colors">
+                className="rounded-xl border-2 border-dashed border-[#1B3A6B]/40 py-2.5 text-sm font-semibold text-[#1B3A6B] hover:border-[#1B3A6B] hover:bg-[#EEF2F9] transition-colors">
                 + Ajouter une formation
               </button>
             </div>
@@ -347,7 +347,7 @@ export function CentreForm() {
                   <label key={m} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="mode_formation" value={m}
                       checked={form.mode_formation === m} onChange={() => set("mode_formation", m)}
-                      className="accent-[#1a5c3a]" />
+                      className="accent-[#1B3A6B]" />
                     <span className="text-sm capitalize">{m}</span>
                   </label>
                 ))}
@@ -400,20 +400,20 @@ export function CentreForm() {
         <div className={`flex mt-8 gap-3 ${step > 0 ? "justify-between" : "justify-end"}`}>
           {step > 0 && (
             <button type="button" onClick={prev}
-              className="rounded-full border-2 border-[#1a5c3a] px-6 py-2.5 text-sm font-semibold text-[#1a5c3a] hover:bg-[#f0f7f3] transition-colors">
+              className="rounded-full border-2 border-[#1B3A6B] px-6 py-2.5 text-sm font-semibold text-[#1B3A6B] hover:bg-[#EEF2F9] transition-colors">
               ← Précédent
             </button>
           )}
           {step < ETAPES.length - 1 ? (
             <button type="button" onClick={next}
               className="rounded-full px-8 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#1a5c3a" }}>
+              style={{ backgroundColor: "#C9A84C" }}>
               Suivant →
             </button>
           ) : (
             <button type="button" onClick={handleSubmit} disabled={loading}
               className="rounded-full px-8 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center gap-2"
-              style={{ backgroundColor: "#1a5c3a" }}>
+              style={{ backgroundColor: "#C9A84C" }}>
               {loading && (
                 <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

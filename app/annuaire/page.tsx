@@ -61,7 +61,7 @@ const NIVEAUX = [
 ];
 
 const DISPO_CONFIG: Record<string, { label: string; cls: string }> = {
-  "immédiate":   { label: "Dispo. immédiate", cls: "bg-green-100 text-green-700" },
+  "immédiate":   { label: "Dispo. immédiate", cls: "bg-blue-100 text-blue-800" },
   "1 mois":      { label: "Dispo. 1 mois",    cls: "bg-orange-100 text-orange-700" },
   "négociable":  { label: "Négociable",        cls: "bg-gray-100 text-gray-600" },
 };
@@ -98,24 +98,24 @@ function TalentCard({ talent }: { talent: Talent }) {
   return (
     <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
       {/* En-tête colorée */}
-      <div className="h-3 w-full" style={{ backgroundColor: "#1a5c3a" }} />
+      <div className="h-3 w-full" style={{ backgroundColor: "#1B3A6B" }} />
 
       <div className="flex flex-col gap-3 p-5 flex-1">
         {/* Avatar + Identité */}
         <div className="flex items-center gap-3">
           {talent.avatar_url ? (
-            <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 border-2 border-[#1a5c3a]/20">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 border-2 border-[#1B3A6B]/20">
               <Image src={talent.avatar_url} alt={nomComplet} fill className="object-cover" />
             </div>
           ) : (
             <div className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center text-white text-lg font-bold"
-              style={{ backgroundColor: "#1a5c3a" }}>
+              style={{ backgroundColor: "#1B3A6B" }}>
               {initiales(prenom, nom)}
             </div>
           )}
           <div className="min-w-0">
             <p className="font-bold text-gray-900 truncate">{nomComplet}</p>
-            <p className="text-sm font-medium truncate" style={{ color: "#1a5c3a" }}>
+            <p className="text-sm font-medium truncate" style={{ color: "#1B3A6B" }}>
               {talent.metier_principal || "—"}
             </p>
           </div>
@@ -160,7 +160,7 @@ function TalentCard({ talent }: { talent: Talent }) {
         {competences.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
             {competences.map((c) => (
-              <span key={c} className="text-xs bg-[#f0f7f3] text-[#1a5c3a] rounded-lg px-2 py-1 font-medium">
+              <span key={c} className="text-xs bg-[#EEF2F9] text-[#1B3A6B] rounded-lg px-2 py-1 font-medium">
                 {c}
               </span>
             ))}
@@ -173,7 +173,7 @@ function TalentCard({ talent }: { talent: Talent }) {
         <Link
           href={`/profil/${talent.utilisateur_id}`}
           className="block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "#1a5c3a" }}
+          style={{ backgroundColor: "#C9A84C" }}
         >
           Voir le profil
         </Link>
@@ -184,7 +184,7 @@ function TalentCard({ talent }: { talent: Talent }) {
 
 // ─── Composants filtres ─────────────────────────────────────────────────────────
 
-const selectCls = "w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm bg-white outline-none focus:border-[#1a5c3a] focus:ring-2 focus:ring-[#1a5c3a]/20 transition";
+const selectCls = "w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm bg-white outline-none focus:border-[#1B3A6B] focus:ring-2 focus:ring-[#1B3A6B]/20 transition";
 
 function FilterPanel({
   filters,
@@ -203,7 +203,7 @@ function FilterPanel({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-500 font-medium">{count} / {total} profil{total !== 1 ? "s" : ""}</span>
-        <button onClick={onReset} className="text-xs text-[#1a5c3a] font-semibold hover:underline">
+        <button onClick={onReset} className="text-xs text-[#1B3A6B] font-semibold hover:underline">
           Réinitialiser
         </button>
       </div>
@@ -216,7 +216,7 @@ function FilterPanel({
           value={filters.texte}
           onChange={(e) => onChange("texte", e.target.value)}
           placeholder="Nom, métier, compétences…"
-          className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-2.5 text-sm outline-none focus:border-[#1a5c3a] focus:ring-2 focus:ring-[#1a5c3a]/20 transition"
+          className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-2.5 text-sm outline-none focus:border-[#1B3A6B] focus:ring-2 focus:ring-[#1B3A6B]/20 transition"
         />
       </div>
 
@@ -359,20 +359,20 @@ export default function AnnuairePage() {
   const hasActiveFilter = Object.values(filters).some(Boolean);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8faf9] font-sans">
+    <div className="min-h-screen flex flex-col bg-[#f4f7fb] font-sans">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link href="/" className="text-2xl font-extrabold tracking-tight shrink-0" style={{ color: "#1a5c3a" }}>
-            TalentProof
+          <Link href="/" className="shrink-0">
+            <img src="/logo.png" alt="TalentProof" height="40" />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
-            <Link href="/annuaire" className="text-[#1a5c3a] font-bold border-b-2 border-[#1a5c3a] pb-0.5">Annuaire</Link>
-            <Link href="/recruteur" className="hover:text-[#1a5c3a] transition-colors">Espace Recruteur</Link>
+            <Link href="/annuaire" className="text-[#1B3A6B] font-bold border-b-2 border-[#1B3A6B] pb-0.5">Annuaire</Link>
+            <Link href="/recruteur" className="hover:text-[#1B3A6B] transition-colors">Espace Recruteur</Link>
           </nav>
           <Link href="/inscription?role=talent"
             className="shrink-0 rounded-full px-5 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#1a5c3a" }}>
+            style={{ backgroundColor: "#C9A84C" }}>
             Créer mon profil
           </Link>
         </div>
@@ -381,7 +381,7 @@ export default function AnnuairePage() {
       {/* Titre */}
       <div className="bg-white border-b border-gray-100 px-4 py-6">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-extrabold" style={{ color: "#1a5c3a" }}>
+          <h1 className="text-2xl sm:text-3xl font-extrabold" style={{ color: "#1B3A6B" }}>
             Annuaire des talents
           </h1>
           <p className="text-gray-500 text-sm mt-1">
@@ -419,7 +419,7 @@ export default function AnnuairePage() {
                 <span className="flex items-center gap-2">
                   <span>🔽</span> Filtrer les résultats
                   {hasActiveFilter && (
-                    <span className="rounded-full bg-[#1a5c3a] text-white text-xs px-2 py-0.5">
+                    <span className="rounded-full bg-[#1B3A6B] text-white text-xs px-2 py-0.5">
                       {Object.values(filters).filter(Boolean).length}
                     </span>
                   )}
@@ -457,7 +457,7 @@ export default function AnnuairePage() {
                 <p className="text-sm text-gray-400 mb-4">Essayez d'élargir vos critères de recherche</p>
                 {hasActiveFilter && (
                   <button onClick={() => setFilters(FILTERS_INIT)}
-                    className="text-sm font-semibold text-[#1a5c3a] hover:underline">
+                    className="text-sm font-semibold text-[#1B3A6B] hover:underline">
                     Réinitialiser les filtres
                   </button>
                 )}
@@ -478,7 +478,7 @@ export default function AnnuairePage() {
         </div>
       </main>
 
-      <footer className="mt-8 py-6 text-center text-sm text-white" style={{ backgroundColor: "#1a5c3a" }}>
+      <footer className="mt-8 py-6 text-center text-sm text-white" style={{ backgroundColor: "#1B3A6B" }}>
         TalentProof — la preuve que la compétence mérite d'être vue.
       </footer>
     </div>

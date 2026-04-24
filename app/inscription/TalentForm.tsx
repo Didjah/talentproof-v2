@@ -115,7 +115,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-const inputCls = "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#1a5c3a] focus:ring-2 focus:ring-[#1a5c3a]/20 transition";
+const inputCls = "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#1B3A6B] focus:ring-2 focus:ring-[#1B3A6B]/20 transition";
 const selectCls = inputCls + " bg-white";
 const textareaCls = inputCls + " resize-none";
 
@@ -126,7 +126,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? "bg-[#1a5c3a]" : "bg-gray-200"}`}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? "bg-[#1B3A6B]" : "bg-gray-200"}`}
       >
         <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${checked ? "translate-x-6" : "translate-x-1"}`} />
       </button>
@@ -146,7 +146,7 @@ function FileInput({
       <button
         type="button"
         onClick={() => ref.current?.click()}
-        className="flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 px-4 py-3 text-sm text-gray-500 hover:border-[#1a5c3a] hover:text-[#1a5c3a] transition-colors text-left"
+        className="flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 px-4 py-3 text-sm text-gray-500 hover:border-[#1B3A6B] hover:text-[#1B3A6B] transition-colors text-left"
       >
         <span className="text-2xl">📎</span>
         <span className="flex-1 truncate">{value ? value.name : "Choisir un fichier…"}</span>
@@ -174,14 +174,14 @@ function ProgressBar({ step }: { step: number }) {
           <div key={i} className="flex flex-col items-center gap-1 flex-1">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                i < step ? "bg-[#1a5c3a] border-[#1a5c3a] text-white"
-                : i === step ? "border-[#1a5c3a] text-[#1a5c3a] bg-white"
+                i < step ? "bg-[#1B3A6B] border-[#1B3A6B] text-white"
+                : i === step ? "border-[#1B3A6B] text-[#1B3A6B] bg-white"
                 : "border-gray-200 text-gray-400 bg-white"
               }`}
             >
               {i < step ? "✓" : i + 1}
             </div>
-            <span className={`text-xs hidden sm:block ${i === step ? "text-[#1a5c3a] font-semibold" : "text-gray-400"}`}>
+            <span className={`text-xs hidden sm:block ${i === step ? "text-[#1B3A6B] font-semibold" : "text-gray-400"}`}>
               {label}
             </span>
           </div>
@@ -190,7 +190,7 @@ function ProgressBar({ step }: { step: number }) {
       <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500"
-          style={{ backgroundColor: "#1a5c3a", width: `${((step) / (ETAPES.length - 1)) * 100}%` }}
+          style={{ backgroundColor: "#1B3A6B", width: `${((step) / (ETAPES.length - 1)) * 100}%` }}
         />
       </div>
     </div>
@@ -351,7 +351,7 @@ export function TalentForm() {
 
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-1" style={{ color: "#1a5c3a" }}>
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-1" style={{ color: "#1B3A6B" }}>
         Créer mon profil Talent
       </h1>
       <p className="text-center text-gray-500 text-sm mb-8">
@@ -467,7 +467,7 @@ export function TalentForm() {
                   <label key={d} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="disponibilite" value={d} checked={form.disponibilite === d}
                       onChange={() => set("disponibilite", d)}
-                      className="accent-[#1a5c3a]" />
+                      className="accent-[#1B3A6B]" />
                     <span className="text-sm capitalize">{d}</span>
                   </label>
                 ))}
@@ -577,20 +577,20 @@ export function TalentForm() {
         <div className={`flex mt-8 gap-3 ${step > 0 ? "justify-between" : "justify-end"}`}>
           {step > 0 && (
             <button type="button" onClick={prev}
-              className="rounded-full border-2 border-[#1a5c3a] px-6 py-2.5 text-sm font-semibold text-[#1a5c3a] hover:bg-[#f0f7f3] transition-colors">
+              className="rounded-full border-2 border-[#1B3A6B] px-6 py-2.5 text-sm font-semibold text-[#1B3A6B] hover:bg-[#EEF2F9] transition-colors">
               ← Précédent
             </button>
           )}
           {step < ETAPES.length - 1 ? (
             <button type="button" onClick={next}
               className="rounded-full px-8 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#1a5c3a" }}>
+              style={{ backgroundColor: "#C9A84C" }}>
               Suivant →
             </button>
           ) : (
             <button type="button" onClick={handleSubmit} disabled={loading}
               className="rounded-full px-8 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center gap-2"
-              style={{ backgroundColor: "#1a5c3a" }}>
+              style={{ backgroundColor: "#C9A84C" }}>
               {loading && (
                 <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

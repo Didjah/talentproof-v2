@@ -69,7 +69,7 @@ function splitTags(raw: string | null): string[] {
 }
 
 const DISPO: Record<string, { label: string; cls: string }> = {
-  "immédiate":  { label: "Disponible immédiatement", cls: "bg-green-100 text-green-700" },
+  "immédiate":  { label: "Disponible immédiatement", cls: "bg-blue-100 text-blue-800" },
   "1 mois":     { label: "Disponible dans 1 mois",   cls: "bg-orange-100 text-orange-700" },
   "négociable": { label: "Disponibilité négociable",  cls: "bg-gray-100 text-gray-600" },
 };
@@ -79,7 +79,7 @@ const DISPO: Record<string, { label: string; cls: string }> = {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-      <h2 className="text-base font-bold mb-4 pb-2 border-b border-gray-100" style={{ color: "#1a5c3a" }}>
+      <h2 className="text-base font-bold mb-4 pb-2 border-b border-gray-100" style={{ color: "#1B3A6B" }}>
         {title}
       </h2>
       {children}
@@ -100,7 +100,7 @@ function InfoRow({ label, value }: { label: string; value: string | number | nul
 function DocButton({ label, url, icon }: { label: string; url: string; icon: string }) {
   return (
     <a href={url} target="_blank" rel="noopener noreferrer"
-      className="flex items-center gap-2 rounded-xl border border-[#1a5c3a]/30 px-4 py-3 text-sm font-semibold text-[#1a5c3a] hover:bg-[#f0f7f3] transition-colors">
+      className="flex items-center gap-2 rounded-xl border border-[#1B3A6B]/30 px-4 py-3 text-sm font-semibold text-[#1B3A6B] hover:bg-[#EEF2F9] transition-colors">
       <span className="text-lg">{icon}</span>
       {label}
       <span className="ml-auto text-gray-400 text-xs">↗</span>
@@ -197,7 +197,7 @@ export default function ProfilPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#f8faf9] font-sans">
+      <div className="min-h-screen flex flex-col bg-[#f4f7fb] font-sans">
         <HeaderBar />
         <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 flex flex-col gap-5">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -210,14 +210,14 @@ export default function ProfilPage() {
 
   if (error || !profil) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#f8faf9] font-sans">
+      <div className="min-h-screen flex flex-col bg-[#f4f7fb] font-sans">
         <HeaderBar />
         <main className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
             <p className="text-4xl mb-3">😕</p>
             <p className="font-semibold text-gray-700 mb-1">Profil introuvable</p>
             <p className="text-sm text-red-500 mb-4">{error}</p>
-            <Link href="/annuaire" className="text-sm font-semibold text-[#1a5c3a] hover:underline">
+            <Link href="/annuaire" className="text-sm font-semibold text-[#1B3A6B] hover:underline">
               ← Retour à l'annuaire
             </Link>
           </div>
@@ -247,7 +247,7 @@ export default function ProfilPage() {
   ].filter((d) => Boolean(d.url));
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8faf9] font-sans">
+    <div className="min-h-screen flex flex-col bg-[#f4f7fb] font-sans">
       <HeaderBar />
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 flex flex-col gap-5">
@@ -255,7 +255,7 @@ export default function ProfilPage() {
         {/* ─── 1. EN-TÊTE ─────────────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {/* Bandeau vert */}
-          <div className="h-24 w-full" style={{ backgroundColor: "#1a5c3a" }} />
+          <div className="h-24 w-full" style={{ backgroundColor: "#1B3A6B" }} />
 
           <div className="px-6 pb-6 -mt-12">
             {/* Avatar */}
@@ -266,7 +266,7 @@ export default function ProfilPage() {
                 </div>
               ) : (
                 <div className="w-24 h-24 rounded-full border-4 border-white shadow-md flex items-center justify-center text-white text-3xl font-bold"
-                  style={{ backgroundColor: "#1a5c3a" }}>
+                  style={{ backgroundColor: "#1B3A6B" }}>
                   {initiales(profil.prenom, profil.nom)}
                 </div>
               )}
@@ -275,7 +275,7 @@ export default function ProfilPage() {
             {/* Identité */}
             <h1 className="text-2xl font-extrabold text-gray-900">{nomComplet}</h1>
             {profil.titre_profil && (
-              <p className="text-base font-medium mt-0.5" style={{ color: "#1a5c3a" }}>{profil.titre_profil}</p>
+              <p className="text-base font-medium mt-0.5" style={{ color: "#1B3A6B" }}>{profil.titre_profil}</p>
             )}
 
             <div className="flex flex-wrap gap-2 mt-2 text-sm text-gray-600">
@@ -323,13 +323,13 @@ export default function ProfilPage() {
               )}
               {profil.appel_autorise && telNum && (
                 <a href={`tel:${telNum}`}
-                  className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold border-2 text-[#1a5c3a] border-[#1a5c3a] hover:bg-[#f0f7f3] transition-colors">
+                  className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold border-2 text-[#1B3A6B] border-[#1B3A6B] hover:bg-[#EEF2F9] transition-colors">
                   📞 Appeler
                 </a>
               )}
               {profil.email && (
                 <a href={`mailto:${profil.email}`}
-                  className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold border-2 border-gray-200 text-gray-700 hover:border-[#1a5c3a] hover:text-[#1a5c3a] transition-colors">
+                  className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold border-2 border-gray-200 text-gray-700 hover:border-[#1B3A6B] hover:text-[#1B3A6B] transition-colors">
                   ✉️ Email
                 </a>
               )}
@@ -341,7 +341,7 @@ export default function ProfilPage() {
         {(profil.description_courte || profil.bio) && (
           <Section title="Présentation">
             {profil.description_courte && (
-              <div className="rounded-xl bg-[#f0f7f3] border border-[#1a5c3a]/10 px-4 py-3 text-sm font-medium text-gray-700 mb-4 italic">
+              <div className="rounded-xl bg-[#EEF2F9] border border-[#1B3A6B]/10 px-4 py-3 text-sm font-medium text-gray-700 mb-4 italic">
                 "{profil.description_courte}"
               </div>
             )}
@@ -359,7 +359,7 @@ export default function ProfilPage() {
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Principales</p>
                 <div className="flex flex-wrap gap-2">
                   {competencesPrincipales.map((c) => (
-                    <span key={c} className="text-sm font-medium bg-[#f0f7f3] text-[#1a5c3a] rounded-lg px-3 py-1">
+                    <span key={c} className="text-sm font-medium bg-[#EEF2F9] text-[#1B3A6B] rounded-lg px-3 py-1">
                       {c}
                     </span>
                   ))}
@@ -430,7 +430,7 @@ export default function ProfilPage() {
               )}
               {profil.lien_externe && (
                 <a href={profil.lien_externe} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm font-semibold text-[#1a5c3a] hover:underline">
+                  className="flex items-center gap-2 text-sm font-semibold text-[#1B3A6B] hover:underline">
                   🔗 Voir mon portfolio / projet en ligne ↗
                 </a>
               )}
@@ -477,14 +477,14 @@ export default function ProfilPage() {
                 <ContactBtn
                   href={`tel:${telNum}`}
                   icon="📞" label="Appeler maintenant"
-                  cls="border-2 border-[#1a5c3a] text-[#1a5c3a] hover:bg-[#f0f7f3]"
+                  cls="border-2 border-[#1B3A6B] text-[#1B3A6B] hover:bg-[#EEF2F9]"
                 />
               )}
               {profil.email && (
                 <ContactBtn
                   href={`mailto:${profil.email}`}
                   icon="✉️" label="Envoyer un email"
-                  cls="border-2 border-gray-200 text-gray-700 hover:border-[#1a5c3a] hover:text-[#1a5c3a]"
+                  cls="border-2 border-gray-200 text-gray-700 hover:border-[#1B3A6B] hover:text-[#1B3A6B]"
                 />
               )}
             </div>
@@ -492,13 +492,13 @@ export default function ProfilPage() {
         )}
 
         <div className="text-center py-4">
-          <Link href="/annuaire" className="text-sm text-gray-500 hover:text-[#1a5c3a] transition-colors">
+          <Link href="/annuaire" className="text-sm text-gray-500 hover:text-[#1B3A6B] transition-colors">
             ← Retour à l'annuaire
           </Link>
         </div>
       </main>
 
-      <footer className="py-6 text-center text-sm text-white" style={{ backgroundColor: "#1a5c3a" }}>
+      <footer className="py-6 text-center text-sm text-white" style={{ backgroundColor: "#1B3A6B" }}>
         TalentProof — la preuve que la compétence mérite d'être vue.
       </footer>
     </div>
@@ -511,10 +511,10 @@ function HeaderBar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-extrabold tracking-tight" style={{ color: "#1a5c3a" }}>
-          TalentProof
+        <Link href="/" className="shrink-0">
+          <img src="/logo.png" alt="TalentProof" height="40" />
         </Link>
-        <Link href="/annuaire" className="text-sm text-gray-500 hover:text-[#1a5c3a] transition-colors">
+        <Link href="/annuaire" className="text-sm text-gray-500 hover:text-[#1B3A6B] transition-colors">
           ← Annuaire
         </Link>
       </div>
