@@ -218,6 +218,59 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Recruteurs & Entreprises */}
+        <section className="px-4 py-16 bg-white">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Bloc A — Recruteurs */}
+            <div className="flex flex-col gap-6 rounded-3xl p-8" style={{ backgroundColor: NAVY }}>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Vous recrutez ?</h2>
+                <p className="text-white/80 text-sm sm:text-base leading-relaxed">
+                  Accédez à des centaines de profils vérifiés avec preuves visuelles. Filtrez par métier, ville, expérience et contactez directement.
+                </p>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {["Profils avec vidéos et photos", "Contact direct WhatsApp", "Gratuit pour commencer"].map((point) => (
+                  <li key={point} className="flex items-center gap-2 text-white text-sm font-medium">
+                    <span className="text-[#C9A84C] font-bold">✓</span> {point}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/annuaire"
+                className="inline-block self-start rounded-full px-7 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+                style={{ backgroundColor: GOLD, color: NAVY }}
+              >
+                Trouver des talents →
+              </Link>
+            </div>
+
+            {/* Bloc B — Entreprises */}
+            <div className="flex flex-col gap-6 rounded-3xl p-8" style={{ backgroundColor: GOLD }}>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: NAVY }}>Vous êtes une entreprise ?</h2>
+                <p className="text-sm sm:text-base leading-relaxed" style={{ color: NAVY + "cc" }}>
+                  Créez votre vitrine entreprise, publiez vos offres et recevez des candidatures directement sur la plateforme.
+                </p>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {["Vitrine entreprise gratuite", "Publication d'offres d'emploi", "Gestion des candidatures"].map((point) => (
+                  <li key={point} className="flex items-center gap-2 text-sm font-medium" style={{ color: NAVY }}>
+                    <span className="font-bold" style={{ color: NAVY }}>✓</span> {point}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/inscription?role=entreprise"
+                className="inline-block self-start rounded-full px-7 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: NAVY }}
+              >
+                Créer ma vitrine →
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Profils en avant */}
         {vedettes.length > 0 && (
           <section className="px-4 py-16" style={{ backgroundColor: "#EEF2F9" }}>
