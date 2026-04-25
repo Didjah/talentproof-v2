@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
 import { supabase } from "@/src/lib/supabase";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -315,20 +314,24 @@ const FILTERS_INIT: Filters = {
 };
 
 export default function AnnuairePage() {
-  const searchParams = useSearchParams();
   const [talents, setTalents] = useState<Talent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filters, setFilters] = useState<Filters>({
-    texte: "",
-    metier: searchParams.get("metier") ?? "",
-    pays: "",
-    ville: searchParams.get("ville") ?? "",
-    disponibilite: searchParams.get("dispo") ?? "",
-    niveau: searchParams.get("niveau") ?? "",
-  });
+  const [filters, setFilters] = useState<Filters>(FILTERS_INIT);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [verifieOnly, setVerifieOnly] = useState(false);
+
+  // Pre-fill filters from URL params (e.g. from espace-recruteur redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const metier = params.get("metier") ?? "";
+    const ville = params.get("ville") ?? "";
+    const niveau = params.get("niveau") ?? "";
+    const dispo = params.get("dispo") ?? "";
+    if (metier || ville || niveau || dispo) {
+      setFilters((f) => ({ ...f, metier, ville, niveau, disponibilite: dispo }));
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchTalents() {
