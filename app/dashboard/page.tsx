@@ -124,7 +124,7 @@ export default function DashboardPage() {
         .single();
 
       if (talentData) {
-        const u = talentData.utilisateurs as { prenom: string; nom: string } | null;
+        const u = talentData.utilisateurs as unknown as { prenom: string; nom: string } | null;
         setProfil({
           utilisateur_id: talentData.utilisateur_id,
           prenom: u?.prenom ?? "",
