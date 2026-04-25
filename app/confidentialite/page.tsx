@@ -94,7 +94,7 @@ export default function ConfidentialitePage() {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link href="/" className="shrink-0">
-            <img src="/logo.png" alt="TalentProof" style={{ height: "36px", width: "auto" }} />
+            <img src="/logo.png" alt="TalentProof" style={{ height: "32px", width: "auto" }} />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
             <Link href="/annuaire" className="hover:text-[#1B3A6B] transition-colors">Annuaire</Link>
@@ -194,7 +194,7 @@ export default function ConfidentialitePage() {
       <footer style={{ backgroundColor: NAVY }}>
         <div className="max-w-6xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-4 gap-10">
           <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
-            <img src="/logo.png" alt="TalentProof" style={{ height: "40px", width: "auto" }} />
+            <img src="/logo.png" alt="TalentProof" style={{ height: "32px", width: "auto" }} />
             <p className="text-white/70 text-sm leading-relaxed">
               La plateforme qui prouve que la compétence mérite d&apos;être vue.
             </p>

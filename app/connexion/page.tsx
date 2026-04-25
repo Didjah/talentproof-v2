@@ -65,7 +65,7 @@ export default function ConnexionPage() {
       <header className="bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/">
-            <img src="/logo.png" alt="TalentProof" style={{ height: "36px", width: "auto" }} />
+            <img src="/logo.png" alt="TalentProof" style={{ height: "32px", width: "auto" }} />
           </Link>
         </div>
       </header>

@@ -55,7 +55,7 @@ export default async function InscriptionPage({
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="shrink-0">
-            <img src="/logo.png" alt="TalentProof" height="40" />
+            <img src="/logo.png" alt="TalentProof" style={{ height: "32px", width: "auto" }} />
           </Link>
           {role ? (
             <Link href="/inscription" className="text-sm text-gray-500 hover:text-[#1B3A6B] transition-colors">

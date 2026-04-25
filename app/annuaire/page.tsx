@@ -23,12 +23,12 @@ interface Talent {
   preuve_url: string | null;
   has_video: boolean | null;
   has_photo: boolean | null;
-  verifie: boolean | null;
   utilisateurs: {
     prenom: string;
     nom: string;
     pays: string;
     ville: string;
+    verifie: boolean | null;
   } | null;
 }
 
@@ -143,7 +143,7 @@ function TalentCard({ talent }: { talent: Talent }) {
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <p className="font-bold text-gray-900 truncate">{nomComplet}</p>
-              {talent.verifie && (
+              {talent.utilisateurs?.verifie && (
                 <span className="shrink-0 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: "#C9A84C" }}>
                   ✓ Vérifié
                 </span>
@@ -387,12 +387,12 @@ export default function AnnuairePage() {
           preuve_url,
           has_video,
           has_photo,
-          verifie,
           utilisateurs (
             prenom,
             nom,
             pays,
-            ville
+            ville,
+            verifie
           )
         `)
         .eq("profil_public", true)
@@ -442,7 +442,7 @@ export default function AnnuairePage() {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link href="/" className="shrink-0">
-            <img src="/logo.png" alt="TalentProof" height="40" />
+            <img src="/logo.png" alt="TalentProof" style={{ height: "32px", width: "auto" }} />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
             <Link href="/annuaire" className="text-[#1B3A6B] font-bold border-b-2 border-[#1B3A6B] pb-0.5">Annuaire</Link>
