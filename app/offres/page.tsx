@@ -10,6 +10,12 @@ const GOLD = "#C9A84C";
 const CONTRATS = ["Tous", "CDI", "CDD", "Freelance", "Stage", "Temps partiel"];
 const NIVEAUX  = ["Tous", "Débutant", "Intermédiaire", "Expert"];
 
+interface TalentSession {
+  id: string;
+  utilisateur_id: string;
+  telephone: string;
+}
+
 interface Offre {
   id: string;
   titre: string;
@@ -24,15 +30,12 @@ interface Offre {
   created_at: string;
   recruteur_utilisateur_id: string | null;
   entreprise_utilisateur_id: string | null;
-  /* resolved after fetch */
   poster_nom: string;
   poster_whatsapp: string | null;
   poster_type: "recruteur" | "entreprise" | null;
 }
 
-interface PostulModal {
-  offre: Offre;
-}
+type PostulStatut = "idle" | "sending" | "success" | "error";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
@@ -42,7 +45,13 @@ export default function OffresPage() {
   const [offres, setOffres] = useState<Offre[]>([]);
   const [filtered, setFiltered] = useState<Offre[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState<PostulModal | null>(null);
+  const [talentSession, setTalentSession] = useState<TalentSession | null>(null);
+  const [dejaPostule, setDejaPostule] = useState<Set<string>>(new Set());
+
+  /* modal */
+  const [modalOffre, setModalOffre] = useState<Offre | null>(null);
+  const [message, setMessage] = useState("");
+  const [postulStatut, setPostulStatut] = useState<PostulStatut>("idle");
 
   /* filtres */
   const [search, setSearch] = useState("");
@@ -50,8 +59,20 @@ export default function OffresPage() {
   const [contrat, setContrat] = useState("Tous");
   const [niveau, setNiveau] = useState("Tous");
 
+  /* ── Auth + offres + candidatures existantes ── */
   useEffect(() => {
-    async function fetchOffres() {
+    // Lire session talent
+    let sess: TalentSession | null = null;
+    try {
+      const raw = localStorage.getItem("tp_talent");
+      if (raw) {
+        const parsed = JSON.parse(raw) as TalentSession;
+        if (parsed.utilisateur_id) sess = parsed;
+      }
+    } catch { /* ignore */ }
+    setTalentSession(sess);
+
+    async function fetchAll() {
       const { data, error } = await supabase
         .from("offres_emploi")
         .select(`
@@ -65,7 +86,7 @@ export default function OffresPage() {
 
       if (error || !data) { setLoading(false); return; }
 
-      // Résoudre les noms des recruteurs / entreprises en batch
+      // Résoudre noms recruteurs / entreprises en batch
       const recruteurIds = [...new Set(data.filter((o) => o.recruteur_utilisateur_id).map((o) => o.recruteur_utilisateur_id as string))];
       const entrepriseIds = [...new Set(data.filter((o) => o.entreprise_utilisateur_id).map((o) => o.entreprise_utilisateur_id as string))];
 
@@ -82,10 +103,7 @@ export default function OffresPage() {
       ((recruteursRes.data ?? []) as unknown[]).forEach((r: unknown) => {
         const row = r as { utilisateur_id: string; whatsapp: string | null; utilisateurs: { prenom: string; nom: string } | null };
         const u = row.utilisateurs;
-        recruteurMap.set(row.utilisateur_id, {
-          nom: u ? `${u.prenom} ${u.nom}`.trim() : "Recruteur",
-          whatsapp: row.whatsapp,
-        });
+        recruteurMap.set(row.utilisateur_id, { nom: u ? `${u.prenom} ${u.nom}`.trim() : "Recruteur", whatsapp: row.whatsapp });
       });
 
       const entrepriseMap = new Map<string, { nom: string; whatsapp: string | null }>();
@@ -108,10 +126,24 @@ export default function OffresPage() {
 
       setOffres(resolved);
       setFiltered(resolved);
+
+      // Candidatures déjà envoyées par ce talent
+      if (sess) {
+        try {
+          const { data: candData } = await supabase
+            .from("candidatures")
+            .select("offre_id")
+            .eq("talent_utilisateur_id", sess.utilisateur_id);
+          if (candData) {
+            setDejaPostule(new Set((candData as { offre_id: string }[]).map((c) => c.offre_id)));
+          }
+        } catch { /* table absente */ }
+      }
+
       setLoading(false);
     }
 
-    fetchOffres();
+    fetchAll();
   }, []);
 
   /* Filtrage réactif */
@@ -130,6 +162,41 @@ export default function OffresPage() {
     setFiltered(result);
   }, [search, ville, contrat, niveau, offres]);
 
+  function openModal(offre: Offre) {
+    setModalOffre(offre);
+    setMessage("");
+    setPostulStatut("idle");
+  }
+
+  function closeModal() {
+    setModalOffre(null);
+    setPostulStatut("idle");
+    setMessage("");
+  }
+
+  async function handlePostuler() {
+    if (!modalOffre || !talentSession) return;
+    setPostulStatut("sending");
+
+    const { error } = await supabase.from("candidatures").insert({
+      offre_id: modalOffre.id,
+      offre_titre: modalOffre.titre,
+      talent_utilisateur_id: talentSession.utilisateur_id,
+      recruteur_utilisateur_id: modalOffre.recruteur_utilisateur_id ?? null,
+      entreprise_utilisateur_id: modalOffre.entreprise_utilisateur_id ?? null,
+      statut: "recu",
+      message: message.trim() || null,
+    });
+
+    if (error) {
+      setPostulStatut("error");
+      return;
+    }
+
+    setDejaPostule((prev) => new Set([...prev, modalOffre.id]));
+    setPostulStatut("success");
+  }
+
   return (
     <div className="min-h-screen flex flex-col font-sans text-gray-900 bg-white">
       {/* Header */}
@@ -142,21 +209,26 @@ export default function OffresPage() {
             <Link href="/annuaire" className="hover:text-[#1B3A6B] transition-colors">Talents</Link>
             <Link href="/offres" className="font-semibold" style={{ color: NAVY }}>Offres</Link>
           </div>
-          <Link
-            href="/publier-offre"
-            className="shrink-0 rounded-full px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: GOLD }}
-          >
-            Publier une offre
-          </Link>
+          <div className="flex items-center gap-3">
+            {talentSession ? (
+              <Link href="/dashboard" className="text-xs font-semibold hover:underline" style={{ color: NAVY }}>Mon dashboard</Link>
+            ) : (
+              <Link href="/connexion" className="text-xs font-semibold hover:underline" style={{ color: NAVY }}>Se connecter</Link>
+            )}
+            <Link
+              href="/publier-offre"
+              className="shrink-0 rounded-full px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: GOLD }}
+            >
+              Publier une offre
+            </Link>
+          </div>
         </div>
       </header>
 
       {/* Hero */}
       <section className="px-4 py-12 text-center" style={{ backgroundColor: "#EEF2F9" }}>
-        <h1 className="text-2xl sm:text-3xl font-extrabold mb-2" style={{ color: NAVY }}>
-          Offres d&apos;emploi
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold mb-2" style={{ color: NAVY }}>Offres d&apos;emploi</h1>
         <p className="text-gray-600 text-sm sm:text-base max-w-xl mx-auto">
           Des opportunités vérifiées publiées par des recruteurs et entreprises en Afrique.
         </p>
@@ -167,20 +239,8 @@ export default function OffresPage() {
         {/* ── Filtres ── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="🔍 Rechercher un poste…"
-              className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]"
-            />
-            <input
-              type="text"
-              value={ville}
-              onChange={(e) => setVille(e.target.value)}
-              placeholder="📍 Ville"
-              className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]"
-            />
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="🔍 Rechercher un poste…" className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]" />
+            <input type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="📍 Ville" className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <select value={contrat} onChange={(e) => setContrat(e.target.value)} className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B] bg-white">
@@ -192,12 +252,11 @@ export default function OffresPage() {
           </div>
         </div>
 
-        {/* Compteur */}
         <p className="text-sm text-gray-500 px-1">
           {loading ? "Chargement…" : `${filtered.length} offre${filtered.length !== 1 ? "s" : ""} trouvée${filtered.length !== 1 ? "s" : ""}`}
         </p>
 
-        {/* ── Liste des offres ── */}
+        {/* ── Liste ── */}
         {loading ? (
           <div className="flex justify-center py-16">
             <div className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: NAVY, borderTopColor: "transparent" }} />
@@ -213,69 +272,122 @@ export default function OffresPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filtered.map((o) => (
-              <OffreCard key={o.id} offre={o} onPostuler={() => setModal({ offre: o })} />
+              <OffreCard
+                key={o.id}
+                offre={o}
+                dejaPostule={dejaPostule.has(o.id)}
+                onPostuler={() => openModal(o)}
+              />
             ))}
           </div>
         )}
       </main>
 
       {/* ── Modal Postuler ── */}
-      {modal && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50"
-          onClick={() => setModal(null)}
-        >
-          <div
-            className="w-full max-w-sm bg-white rounded-3xl p-6 flex flex-col gap-5 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+      {modalOffre && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50" onClick={closeModal}>
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 flex flex-col gap-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+
             <div>
               <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: GOLD }}>Postuler à</p>
-              <h2 className="text-lg font-extrabold leading-snug" style={{ color: NAVY }}>{modal.offre.titre}</h2>
-              <p className="text-sm text-gray-500 mt-0.5">{modal.offre.poster_nom}</p>
+              <h2 className="text-lg font-extrabold leading-snug" style={{ color: NAVY }}>{modalOffre.titre}</h2>
+              <p className="text-sm text-gray-500 mt-0.5">{modalOffre.poster_nom}</p>
             </div>
 
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Envoyez votre candidature directement via WhatsApp ou consultez le profil du recruteur.
-            </p>
-
-            <div className="flex flex-col gap-3">
-              {modal.offre.poster_whatsapp ? (
-                <a
-                  href={`https://wa.me/${modal.offre.poster_whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Bonjour, je souhaite postuler à votre offre : "${modal.offre.titre}". Je vous contacte via TalentProof.`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-full py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: "#25D366" }}
-                >
-                  📲 Postuler via WhatsApp
-                </a>
-              ) : (
-                <p className="text-xs text-gray-400 text-center">Pas de WhatsApp disponible pour cette offre.</p>
-              )}
-
-              {(modal.offre.recruteur_utilisateur_id || modal.offre.entreprise_utilisateur_id) && (
+            {/* ── Non connecté ── */}
+            {!talentSession && (
+              <div className="flex flex-col gap-3 text-center">
+                <p className="text-sm text-gray-600">Connectez-vous pour envoyer votre candidature.</p>
                 <Link
-                  href={
-                    modal.offre.poster_type === "entreprise"
-                      ? `/entreprise/${modal.offre.entreprise_utilisateur_id}`
-                      : `/profil/${modal.offre.recruteur_utilisateur_id}`
-                  }
-                  target="_blank"
-                  className="flex items-center justify-center gap-2 rounded-full border-2 py-3 text-sm font-semibold transition-colors hover:bg-[#1B3A6B] hover:text-white"
-                  style={{ borderColor: NAVY, color: NAVY }}
+                  href="/connexion"
+                  className="rounded-full py-3 text-sm font-bold text-white text-center transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: NAVY }}
                 >
-                  👤 Voir le profil du recruteur
+                  Se connecter
                 </Link>
-              )}
+                <Link href="/inscription?role=talent" className="text-xs text-gray-400 hover:underline">
+                  Pas encore de profil ? Créer mon profil
+                </Link>
+                <button onClick={closeModal} className="text-xs text-gray-400 hover:text-gray-600 py-1">Fermer</button>
+              </div>
+            )}
 
-              <button
-                onClick={() => setModal(null)}
-                className="text-xs text-gray-400 hover:text-gray-600 transition-colors text-center py-1"
-              >
-                Fermer
-              </button>
-            </div>
+            {/* ── Déjà postulé ── */}
+            {talentSession && dejaPostule.has(modalOffre.id) && (
+              <div className="flex flex-col gap-3 text-center">
+                <div className="rounded-2xl bg-green-50 border border-green-200 py-4 px-4">
+                  <p className="text-2xl mb-1">✅</p>
+                  <p className="text-sm font-bold text-green-700">Déjà postulé à cette offre</p>
+                  <p className="text-xs text-green-600 mt-0.5">Votre candidature est en cours de traitement.</p>
+                </div>
+                <Link href="/dashboard" className="text-xs font-semibold hover:underline" style={{ color: NAVY }}>
+                  Voir mes candidatures →
+                </Link>
+                <button onClick={closeModal} className="text-xs text-gray-400 hover:text-gray-600 py-1">Fermer</button>
+              </div>
+            )}
+
+            {/* ── Connecté + pas encore postulé ── */}
+            {talentSession && !dejaPostule.has(modalOffre.id) && postulStatut !== "success" && (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">Message (optionnel)</label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    rows={3}
+                    placeholder="Présentez-vous brièvement ou mentionnez votre disponibilité…"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#1B3A6B] resize-none"
+                  />
+                </div>
+
+                {/* WhatsApp en complément */}
+                {modalOffre.poster_whatsapp && (
+                  <a
+                    href={`https://wa.me/${modalOffre.poster_whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Bonjour, je souhaite postuler à votre offre : "${modalOffre.titre}". Je vous contacte via TalentProof.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    style={{ backgroundColor: "#25D366" }}
+                  >
+                    📲 Aussi via WhatsApp
+                  </a>
+                )}
+
+                {postulStatut === "error" && (
+                  <p className="text-xs text-red-500 text-center">Erreur lors de l&apos;envoi. Réessayez.</p>
+                )}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handlePostuler}
+                    disabled={postulStatut === "sending"}
+                    className="flex-1 rounded-full py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                    style={{ backgroundColor: NAVY }}
+                  >
+                    {postulStatut === "sending" ? "Envoi…" : "📩 Envoyer ma candidature"}
+                  </button>
+                  <button onClick={closeModal} className="rounded-full border-2 px-4 py-3 text-sm font-semibold" style={{ borderColor: NAVY, color: NAVY }}>
+                    ✕
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Succès ── */}
+            {talentSession && postulStatut === "success" && (
+              <div className="flex flex-col gap-3 text-center">
+                <div className="rounded-2xl bg-green-50 border border-green-200 py-6 px-4">
+                  <p className="text-3xl mb-2">🎉</p>
+                  <p className="text-base font-bold text-green-700">Candidature envoyée !</p>
+                  <p className="text-xs text-green-600 mt-1">Le recruteur recevra votre profil TalentProof.</p>
+                </div>
+                <Link href="/dashboard" className="text-xs font-semibold hover:underline" style={{ color: NAVY }}>
+                  Voir mes candidatures →
+                </Link>
+                <button onClick={closeModal} className="text-xs text-gray-400 hover:text-gray-600 py-1">Fermer</button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -291,20 +403,19 @@ export default function OffresPage() {
 /* ─── Carte offre ─────────────────────────────────────────────────────────── */
 
 const CONTRAT_CLS: Record<string, string> = {
-  CDI:           "bg-green-100 text-green-700",
-  CDD:           "bg-blue-100 text-blue-700",
-  Freelance:     "bg-purple-100 text-purple-700",
-  Stage:         "bg-yellow-100 text-yellow-700",
+  CDI:            "bg-green-100 text-green-700",
+  CDD:            "bg-blue-100 text-blue-700",
+  Freelance:      "bg-purple-100 text-purple-700",
+  Stage:          "bg-yellow-100 text-yellow-700",
   "Temps partiel":"bg-orange-100 text-orange-700",
 };
 
-function OffreCard({ offre, onPostuler }: { offre: Offre; onPostuler: () => void }) {
+function OffreCard({ offre, dejaPostule, onPostuler }: { offre: Offre; dejaPostule: boolean; onPostuler: () => void }) {
   const contratCls = CONTRAT_CLS[offre.type_contrat ?? ""] ?? "bg-gray-100 text-gray-600";
   const lieu = [offre.ville, offre.pays].filter(Boolean).join(", ");
 
   return (
     <div className="flex flex-col gap-4 bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
-      {/* Titre + badge statut */}
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-bold text-base leading-snug flex-1" style={{ color: NAVY }}>{offre.titre}</h3>
         {offre.statut === "ouverte" && (
@@ -312,22 +423,13 @@ function OffreCard({ offre, onPostuler }: { offre: Offre; onPostuler: () => void
         )}
       </div>
 
-      {/* Poster */}
       <p className="text-sm font-semibold text-gray-600 -mt-2">{offre.poster_nom}</p>
 
-      {/* Badges */}
       <div className="flex flex-wrap gap-2">
-        {offre.type_contrat && (
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${contratCls}`}>{offre.type_contrat}</span>
-        )}
-        {offre.niveau_experience && (
-          <span className="rounded-full bg-[#EEF2F9] px-2.5 py-0.5 text-xs font-semibold" style={{ color: NAVY }}>
-            {offre.niveau_experience}
-          </span>
-        )}
+        {offre.type_contrat && <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${contratCls}`}>{offre.type_contrat}</span>}
+        {offre.niveau_experience && <span className="rounded-full bg-[#EEF2F9] px-2.5 py-0.5 text-xs font-semibold" style={{ color: NAVY }}>{offre.niveau_experience}</span>}
       </div>
 
-      {/* Infos */}
       <div className="flex flex-col gap-1 text-xs text-gray-500">
         {lieu && <span>📍 {lieu}</span>}
         {offre.salaire_propose && <span>💰 {offre.salaire_propose}</span>}
@@ -335,19 +437,21 @@ function OffreCard({ offre, onPostuler }: { offre: Offre; onPostuler: () => void
         <span className="text-gray-400">Publiée le {formatDate(offre.created_at)}</span>
       </div>
 
-      {/* Description courte */}
-      {offre.description && (
-        <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{offre.description}</p>
-      )}
+      {offre.description && <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{offre.description}</p>}
 
-      {/* CTA */}
-      <button
-        onClick={onPostuler}
-        className="mt-auto w-full rounded-xl py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
-        style={{ backgroundColor: NAVY }}
-      >
-        Postuler →
-      </button>
+      {dejaPostule ? (
+        <button disabled className="mt-auto w-full rounded-xl py-2.5 text-sm font-bold bg-green-100 text-green-700 cursor-default">
+          ✓ Déjà postulé
+        </button>
+      ) : (
+        <button
+          onClick={onPostuler}
+          className="mt-auto w-full rounded-xl py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+          style={{ backgroundColor: NAVY }}
+        >
+          Postuler →
+        </button>
+      )}
     </div>
   );
 }
