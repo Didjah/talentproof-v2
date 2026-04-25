@@ -464,6 +464,8 @@ export default function AnnuairePage() {
                     onReset={() => setFilters(FILTERS_INIT)}
                     count={filtered.length}
                     total={talents.length}
+                    verifieOnly={verifieOnly}
+                    onToggleVerifie={setVerifieOnly}
                   />
                 </div>
               )}
