@@ -19,6 +19,7 @@ interface Talent {
   preuve_url: string | null;
   has_video: boolean | null;
   has_photo: boolean | null;
+  verifie: boolean | null;
   utilisateurs: {
     prenom: string;
     nom: string;
@@ -114,7 +115,14 @@ function TalentCard({ talent }: { talent: Talent }) {
             </div>
           )}
           <div className="min-w-0">
-            <p className="font-bold text-gray-900 truncate">{nomComplet}</p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <p className="font-bold text-gray-900 truncate">{nomComplet}</p>
+              {talent.verifie && (
+                <span className="shrink-0 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: "#C9A84C" }}>
+                  ✓ Vérifié
+                </span>
+              )}
+            </div>
             <p className="text-sm font-medium truncate" style={{ color: "#1B3A6B" }}>
               {talent.metier_principal || "—"}
             </p>
@@ -192,12 +200,16 @@ function FilterPanel({
   onReset,
   count,
   total,
+  verifieOnly,
+  onToggleVerifie,
 }: {
   filters: Filters;
   onChange: (key: keyof Filters, val: string) => void;
   onReset: () => void;
   count: number;
   total: number;
+  verifieOnly: boolean;
+  onToggleVerifie: (v: boolean) => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -269,6 +281,19 @@ function FilterPanel({
           {NIVEAUX.map((n) => <option key={n}>{n}</option>)}
         </select>
       </div>
+
+      {/* Profils vérifiés */}
+      <label className="flex items-center gap-2.5 cursor-pointer select-none mt-1">
+        <input
+          type="checkbox"
+          checked={verifieOnly}
+          onChange={(e) => onToggleVerifie(e.target.checked)}
+          className="w-4 h-4 rounded accent-[#C9A84C]"
+        />
+        <span className="text-sm font-semibold" style={{ color: "#1B3A6B" }}>
+          ✓ Profils vérifiés seulement
+        </span>
+      </label>
     </div>
   );
 }
@@ -294,6 +319,7 @@ export default function AnnuairePage() {
   const [error, setError] = useState("");
   const [filters, setFilters] = useState<Filters>(FILTERS_INIT);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [verifieOnly, setVerifieOnly] = useState(false);
 
   useEffect(() => {
     async function fetchTalents() {
@@ -311,6 +337,7 @@ export default function AnnuairePage() {
           preuve_url,
           has_video,
           has_photo,
+          verifie,
           utilisateurs (
             prenom,
             nom,
@@ -352,11 +379,12 @@ export default function AnnuairePage() {
       if (filters.ville && !normalise(t.utilisateurs?.ville ?? "").includes(normalise(filters.ville))) return false;
       if (filters.disponibilite && t.disponibilite !== filters.disponibilite) return false;
       if (filters.niveau && t.niveau_experience !== filters.niveau) return false;
+      if (verifieOnly && !t.verifie) return false;
       return true;
     });
-  }, [talents, filters]);
+  }, [talents, filters, verifieOnly]);
 
-  const hasActiveFilter = Object.values(filters).some(Boolean);
+  const hasActiveFilter = Object.values(filters).some(Boolean) || verifieOnly;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f4f7fb] font-sans">
@@ -400,9 +428,11 @@ export default function AnnuairePage() {
               <FilterPanel
                 filters={filters}
                 onChange={setFilter}
-                onReset={() => setFilters(FILTERS_INIT)}
+                onReset={() => { setFilters(FILTERS_INIT); setVerifieOnly(false); }}
                 count={filtered.length}
                 total={talents.length}
+                verifieOnly={verifieOnly}
+                onToggleVerifie={setVerifieOnly}
               />
             </div>
           </aside>

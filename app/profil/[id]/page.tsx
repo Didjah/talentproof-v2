@@ -55,6 +55,7 @@ interface Profil {
   appel_autorise: boolean;
   afficher_salaire: boolean;
   afficher_telephone: boolean;
+  verifie: boolean | null;
 }
 
 // ─── Utilitaires ──────────────────────────────────────────────────────────────
@@ -163,6 +164,7 @@ export default function ProfilPage() {
           appel_autorise,
           afficher_salaire,
           afficher_telephone,
+          verifie,
           utilisateurs (
             prenom,
             nom,
@@ -273,7 +275,17 @@ export default function ProfilPage() {
             </div>
 
             {/* Identité */}
-            <h1 className="text-2xl font-extrabold text-gray-900">{nomComplet}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-extrabold text-gray-900">{nomComplet}</h1>
+              {profil.verifie && (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold text-white"
+                  style={{ backgroundColor: "#C9A84C" }}
+                >
+                  ✓ Vérifié
+                </span>
+              )}
+            </div>
             {profil.titre_profil && (
               <p className="text-base font-medium mt-0.5" style={{ color: "#1B3A6B" }}>{profil.titre_profil}</p>
             )}
