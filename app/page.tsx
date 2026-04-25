@@ -427,8 +427,85 @@ export default async function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="py-8 text-center text-sm text-white" style={{ backgroundColor: NAVY }}>
-        TalentProof — la preuve que la compétence mérite d&apos;être vue.
+      <footer style={{ backgroundColor: NAVY }}>
+        <div className="max-w-6xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-4 gap-10">
+          {/* Colonne 1 — Logo + description */}
+          <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
+            <img src="/logo.png" alt="TalentProof" style={{ height: "40px", width: "auto" }} />
+            <p className="text-white/70 text-sm leading-relaxed">
+              La plateforme qui prouve que la compétence mérite d&apos;être vue.
+            </p>
+            <div className="flex gap-4 mt-1">
+              {[
+                { label: "WhatsApp", href: "#" },
+                { label: "Facebook", href: "#" },
+                { label: "LinkedIn", href: "#" },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  className="text-xs font-semibold text-white/60 hover:text-white transition-colors"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Colonne 2 — Plateforme */}
+          <div className="flex flex-col gap-3">
+            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Plateforme</p>
+            {[
+              { label: "Annuaire", href: "/annuaire" },
+              { label: "Créer mon profil", href: "/inscription?role=talent" },
+              { label: "Espace Recruteur", href: "/recruteur" },
+              { label: "Devenir Partenaire", href: "/partenaire" },
+            ].map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Colonne 3 — Rôles */}
+          <div className="flex flex-col gap-3">
+            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Je suis…</p>
+            {[
+              { label: "Un Talent", href: "/inscription?role=talent" },
+              { label: "Un Recruteur", href: "/inscription?role=recruteur" },
+              { label: "Une Entreprise", href: "/inscription?role=entreprise" },
+              { label: "Un Centre de formation", href: "/inscription?role=centre" },
+            ].map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Colonne 4 — Informations */}
+          <div className="flex flex-col gap-3">
+            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Informations</p>
+            {[
+              { label: "À propos", href: "/a-propos" },
+              { label: "Contact", href: "/contact" },
+              { label: "Aide", href: "/aide" },
+              { label: "Conditions d'utilisation", href: "/conditions-utilisation" },
+              { label: "Confidentialité", href: "/confidentialite" },
+            ].map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Bas du footer */}
+        <div className="border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/50">
+            <span>© 2025 TalentProof Africa. Tous droits réservés.</span>
+            <span>Fait avec ❤️ pour l&apos;Afrique</span>
+          </div>
+        </div>
       </footer>
     </div>
   );
