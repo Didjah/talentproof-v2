@@ -25,6 +25,31 @@ const STATUT_OFFRE: Record<string, { label: string; cls: string }> = {
   fermee:    { label: "Fermée",    cls: "bg-gray-100 text-gray-500" },
 };
 
+const METIERS_RECHERCHE = [
+  "Agent administratif", "Agent de nettoyage", "Agent de sécurité / Gardien",
+  "Agent immobilier", "Agriculteur", "Aide-ménagère / Ménagère",
+  "Architecte", "Artisan", "Assistant(e) comptable",
+  "Assistant(e) de direction", "Carreleur", "Chauffeur",
+  "Chauffeur-livreur", "Chef cuisinier", "Climaticien / Technicien HVAC",
+  "Coiffeur / Coiffeuse", "Commercial / Vendeur", "Comptable",
+  "Couturier / Tailleur", "Développeur web / mobile", "Électricien",
+  "Enseignant / Formateur", "Esthéticien(ne)", "Gardien(ne) d'enfants",
+  "Graphiste / Designer", "Infirmier / Infirmière", "Informaticien",
+  "Ingénieur", "Journaliste / Rédacteur", "Juriste / Avocat",
+  "Maçon", "Mécanicien", "Menuisier",
+  "Peintre en bâtiment", "Photographe / Vidéaste", "Plombier",
+  "Secrétaire", "Serveur / Serveuse", "Soudeur",
+  "Technicien électronique", "Autre",
+];
+
+const NIVEAUX_RECHERCHE = [
+  "Débutant (0–1 an)",
+  "Junior (1–3 ans)",
+  "Intermédiaire (3–5 ans)",
+  "Senior (5–10 ans)",
+  "Expert (10 ans+)",
+];
+
 const NEXT_STATUT: Record<string, string> = {
   recu:           "consulte",
   consulte:       "preselectionne",
@@ -171,6 +196,9 @@ export default function EspaceRecruteurPage() {
   const [offres, setOffres] = useState<Offre[]>([]);
   const [candidatures, setCandidatures] = useState<Candidature[]>([]);
   const [searchMetier, setSearchMetier] = useState("");
+  const [searchVille, setSearchVille] = useState("");
+  const [searchNiveau, setSearchNiveau] = useState("");
+  const [searchDispo, setSearchDispo] = useState("");
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -330,9 +358,12 @@ export default function EspaceRecruteurPage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (searchMetier.trim()) {
-      router.push(`/annuaire?metier=${encodeURIComponent(searchMetier.trim())}`);
-    }
+    const params = new URLSearchParams();
+    if (searchMetier) params.set("metier", searchMetier);
+    if (searchVille.trim()) params.set("ville", searchVille.trim());
+    if (searchNiveau) params.set("niveau", searchNiveau);
+    if (searchDispo) params.set("dispo", searchDispo);
+    router.push(`/annuaire${params.toString() ? `?${params.toString()}` : ""}`);
   }
 
   // Pas encore vérifié l'auth
@@ -417,22 +448,70 @@ export default function EspaceRecruteurPage() {
         </section>
 
         {/* ── Recherche rapide ── */}
-        <section className="bg-white rounded-3xl p-6 shadow-sm flex flex-col gap-3">
+        <section className="bg-white rounded-3xl p-6 shadow-sm flex flex-col gap-4">
           <h2 className="text-base font-bold" style={{ color: NAVY }}>Recherche rapide de talents</h2>
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <input
-              type="text"
-              value={searchMetier}
-              onChange={(e) => setSearchMetier(e.target.value)}
-              placeholder="Ex: Maçon, Chauffeur, Comptable…"
-              className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]"
-            />
+          <form onSubmit={handleSearch} className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Métier */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-600">Métier</label>
+                <select
+                  value={searchMetier}
+                  onChange={(e) => setSearchMetier(e.target.value)}
+                  className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[#1B3A6B]"
+                >
+                  <option value="">Tous les métiers</option>
+                  {METIERS_RECHERCHE.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </div>
+
+              {/* Ville */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-600">Ville</label>
+                <input
+                  type="text"
+                  value={searchVille}
+                  onChange={(e) => setSearchVille(e.target.value)}
+                  placeholder="ex: Conakry"
+                  className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]"
+                />
+              </div>
+
+              {/* Niveau d'expérience */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-600">Niveau d&apos;expérience</label>
+                <select
+                  value={searchNiveau}
+                  onChange={(e) => setSearchNiveau(e.target.value)}
+                  className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[#1B3A6B]"
+                >
+                  <option value="">Tous les niveaux</option>
+                  {NIVEAUX_RECHERCHE.map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+
+              {/* Disponibilité */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-600">Disponibilité</label>
+                <select
+                  value={searchDispo}
+                  onChange={(e) => setSearchDispo(e.target.value)}
+                  className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[#1B3A6B]"
+                >
+                  <option value="">Toutes</option>
+                  <option value="immédiate">Immédiate</option>
+                  <option value="1 mois">1 mois</option>
+                  <option value="négociable">Négociable</option>
+                </select>
+              </div>
+            </div>
+
             <button
               type="submit"
               className="rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: NAVY }}
             >
-              Chercher
+              🔍 Rechercher dans l&apos;annuaire
             </button>
           </form>
         </section>

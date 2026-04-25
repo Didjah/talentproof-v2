@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/src/lib/supabase";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -314,10 +315,18 @@ const FILTERS_INIT: Filters = {
 };
 
 export default function AnnuairePage() {
+  const searchParams = useSearchParams();
   const [talents, setTalents] = useState<Talent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filters, setFilters] = useState<Filters>(FILTERS_INIT);
+  const [filters, setFilters] = useState<Filters>({
+    texte: "",
+    metier: searchParams.get("metier") ?? "",
+    pays: "",
+    ville: searchParams.get("ville") ?? "",
+    disponibilite: searchParams.get("dispo") ?? "",
+    niveau: searchParams.get("niveau") ?? "",
+  });
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [verifieOnly, setVerifieOnly] = useState(false);
 

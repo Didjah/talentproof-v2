@@ -126,6 +126,7 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [entretienOpen, setEntretienOpen] = useState(false);
+  const [partagerOpen, setPartagerOpen] = useState(false);
 
   useEffect(() => {
     async function fetchProfil() {
@@ -346,6 +347,12 @@ export default function ProfilPage() {
                   ✉️ Email
                 </a>
               )}
+              <button
+                onClick={() => setPartagerOpen(true)}
+                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold border-2 border-gray-200 text-gray-700 hover:border-[#C9A84C] hover:text-[#C9A84C] transition-colors"
+              >
+                🔗 Partager
+              </button>
             </div>
           </div>
         </div>
@@ -522,6 +529,16 @@ export default function ProfilPage() {
           />
         )}
 
+        {/* Modal partager */}
+        {partagerOpen && (
+          <PartagerModal
+            prenom={profil.prenom}
+            nom={profil.nom}
+            utilisateurId={profil.utilisateur_id}
+            onClose={() => setPartagerOpen(false)}
+          />
+        )}
+
         <div className="text-center py-4">
           <Link href="/annuaire" className="text-sm text-gray-500 hover:text-[#1B3A6B] transition-colors">
             ← Retour à l'annuaire
@@ -532,6 +549,110 @@ export default function ProfilPage() {
       <footer className="py-6 text-center text-sm text-white" style={{ backgroundColor: "#1B3A6B" }}>
         TalentProof — la preuve que la compétence mérite d'être vue.
       </footer>
+    </div>
+  );
+}
+
+// ─── Modal partager ce profil ─────────────────────────────────────────────────
+
+function PartagerModal({
+  prenom,
+  nom,
+  utilisateurId,
+  onClose,
+}: {
+  prenom: string;
+  nom: string;
+  utilisateurId: string;
+  onClose: () => void;
+}) {
+  const [copie, setCopie] = useState(false);
+  const lien = typeof window !== "undefined"
+    ? `${window.location.origin}/profil/${utilisateurId}`
+    : `/profil/${utilisateurId}`;
+  const nomComplet = `${prenom} ${nom}`.trim();
+  const texteWa = `Découvrez le profil de ${nomComplet} sur TalentProof : ${lien}`;
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(texteWa)}`;
+
+  async function copierLien() {
+    try {
+      await navigator.clipboard.writeText(lien);
+    } catch {
+      const el = document.createElement("textarea");
+      el.value = lien;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+    }
+    setCopie(true);
+    setTimeout(() => setCopie(false), 2500);
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden">
+        {/* En-tête */}
+        <div className="px-6 py-5 flex items-center justify-between" style={{ backgroundColor: "#1B3A6B" }}>
+          <div>
+            <h2 className="text-base font-extrabold text-white">🔗 Partager ce profil</h2>
+            <p className="text-xs text-white/70 mt-0.5">{nomComplet}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white/70 hover:text-white text-xl leading-none transition-colors"
+            aria-label="Fermer"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="px-6 py-5 flex flex-col gap-4">
+          {/* Lien du profil */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-gray-600">Lien du profil</label>
+            <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5">
+              <span className="flex-1 text-xs text-gray-500 truncate">{lien}</span>
+            </div>
+          </div>
+
+          {/* Bouton copier */}
+          <button
+            onClick={copierLien}
+            className="flex items-center justify-center gap-2 w-full rounded-xl py-3 text-sm font-semibold border-2 transition-all"
+            style={{
+              borderColor: copie ? "#22c55e" : "#1B3A6B",
+              color: copie ? "#22c55e" : "#1B3A6B",
+              backgroundColor: copie ? "#f0fdf4" : "transparent",
+            }}
+          >
+            {copie ? "✓ Lien copié dans le presse-papier !" : "📋 Copier le lien"}
+          </button>
+
+          {/* Partager sur WhatsApp */}
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full rounded-xl py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "#25D366" }}
+          >
+            📲 Partager sur WhatsApp
+          </a>
+        </div>
+
+        <div className="px-6 pb-6">
+          <button
+            onClick={onClose}
+            className="w-full text-center text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
