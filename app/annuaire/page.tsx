@@ -14,6 +14,10 @@ interface Talent {
   niveau_experience: string;
   disponibilite: string;
   competences_principales: string;
+  bio: string | null;
+  whatsapp: string | null;
+  cv_url: string | null;
+  diplome_url: string | null;
   avatar_url: string | null;
   video_presentation_url: string | null;
   preuve_url: string | null;
@@ -73,6 +77,26 @@ function initiales(prenom: string, nom: string) {
   return `${prenom?.[0] ?? ""}${nom?.[0] ?? ""}`.toUpperCase() || "?";
 }
 
+function computeScoreTalent(t: Talent): number {
+  let s = 0;
+  if (t.avatar_url)                                                   s += 15;
+  if (t.has_video || t.video_presentation_url)                        s += 20;
+  if (t.bio?.trim())                                                   s += 10;
+  if (t.competences_principales?.trim())                               s += 10;
+  if (t.cv_url || t.diplome_url)                                       s += 15;
+  if (t.preuve_url)                                                    s += 15;
+  if (t.whatsapp?.trim())                                              s +=  5;
+  if (t.metier_principal?.trim() && t.niveau_experience?.trim())       s += 10;
+  return s;
+}
+
+interface ScoreBadge { emoji: string; label: string; color: string; bg: string }
+function getBadge(score: number): ScoreBadge {
+  if (score >= 71) return { emoji: "🥇", label: "Or",     color: "#C9A84C", bg: "bg-yellow-50" };
+  if (score >= 41) return { emoji: "🥈", label: "Argent", color: "#9CA3AF", bg: "bg-gray-100"  };
+  return              { emoji: "🥉", label: "Bronze",  color: "#CD7F32", bg: "bg-amber-50"  };
+}
+
 function splitCompetences(raw: string): string[] {
   return raw
     .split(/[,\n;]+/)
@@ -95,6 +119,8 @@ function TalentCard({ talent }: { talent: Talent }) {
   const dispo = DISPO_CONFIG[talent.disponibilite] ?? DISPO_CONFIG["négociable"];
   const hasVideo = talent.has_video ?? Boolean(talent.video_presentation_url);
   const hasPhoto = talent.has_photo ?? Boolean(talent.preuve_url);
+  const score = computeScoreTalent(talent);
+  const badge = getBadge(score);
 
   return (
     <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
@@ -159,10 +185,18 @@ function TalentCard({ talent }: { talent: Talent }) {
           </div>
         )}
 
-        {/* Badge disponibilité */}
-        <span className={`self-start text-xs font-semibold rounded-full px-2.5 py-1 ${dispo.cls}`}>
-          {dispo.label}
-        </span>
+        {/* Disponibilité + Badge score */}
+        <div className="flex items-center justify-between gap-2">
+          <span className={`text-xs font-semibold rounded-full px-2.5 py-1 ${dispo.cls}`}>
+            {dispo.label}
+          </span>
+          <span
+            className={`text-xs font-bold rounded-full px-2.5 py-1 ${badge.bg}`}
+            style={{ color: badge.color }}
+          >
+            {badge.emoji} {badge.label}
+          </span>
+        </div>
 
         {/* Compétences */}
         {competences.length > 0 && (
@@ -344,6 +378,10 @@ export default function AnnuairePage() {
           niveau_experience,
           disponibilite,
           competences_principales,
+          bio,
+          whatsapp,
+          cv_url,
+          diplome_url,
           avatar_url,
           video_presentation_url,
           preuve_url,

@@ -75,6 +75,28 @@ const DISPO: Record<string, { label: string; cls: string }> = {
   "négociable": { label: "Disponibilité négociable",  cls: "bg-gray-100 text-gray-600" },
 };
 
+// ─── Score et badges ──────────────────────────────────────────────────────────
+
+function computeScore(p: Profil): number {
+  let s = 0;
+  if (p.avatar_url)                                              s += 15;
+  if (p.has_video || p.video_presentation_url)                   s += 20;
+  if (p.bio?.trim())                                             s += 10;
+  if (p.competences_principales?.trim())                         s += 10;
+  if (p.cv_url || p.diplome_url)                                 s += 15;
+  if (p.preuve_url)                                              s += 15;
+  if (p.whatsapp?.trim())                                        s +=  5;
+  if (p.metier_principal?.trim() && p.niveau_experience?.trim()) s += 10;
+  return s;
+}
+
+interface ScoreBadge { emoji: string; label: string; color: string; bg: string }
+function getBadge(score: number): ScoreBadge {
+  if (score >= 71) return { emoji: "🥇", label: "Or",     color: "#C9A84C", bg: "bg-yellow-50" };
+  if (score >= 41) return { emoji: "🥈", label: "Argent", color: "#9CA3AF", bg: "bg-gray-100"  };
+  return              { emoji: "🥉", label: "Bronze",  color: "#CD7F32", bg: "bg-amber-50"  };
+}
+
 // ─── Petits composants ────────────────────────────────────────────────────────
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -325,6 +347,36 @@ export default function ProfilPage() {
                 </span>
               )}
             </div>
+
+            {/* Score de profil */}
+            {(() => {
+              const score = computeScore(profil);
+              const badge = getBadge(score);
+              return (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-semibold text-gray-500">Score de profil</span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-xs font-bold rounded-full px-2.5 py-0.5 ${badge.bg}`}
+                        style={{ color: badge.color }}
+                      >
+                        {badge.emoji} {badge.label}
+                      </span>
+                      <span className="text-xs font-extrabold tabular-nums" style={{ color: badge.color }}>
+                        {score} / 100
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${score}%`, backgroundColor: badge.color }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Boutons contact rapide */}
             <div className="flex flex-wrap gap-2 mt-4">
