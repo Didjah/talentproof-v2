@@ -182,6 +182,42 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Ce que tu peux mettre sur ton profil */}
+        <section className="px-4 py-16" style={{ backgroundColor: "#EEF2F9" }}>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2" style={{ color: NAVY }}>
+              Tout ce qu&apos;il faut pour être remarqué
+            </h2>
+            <p className="text-center text-gray-500 text-base sm:text-lg mb-10 max-w-xl mx-auto">
+              Ton profil TalentProof va bien au-delà d&apos;un simple CV
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {[
+                { icon: "📸", label: "Photo de profil" },
+                { icon: "🎬", label: "Vidéo de présentation" },
+                { icon: "🎥", label: "Vidéo de démonstration" },
+                { icon: "📷", label: "Photos de réalisations" },
+                { icon: "📄", label: "CV en PDF" },
+                { icon: "🎓", label: "Diplôme ou attestation" },
+                { icon: "🔧", label: "Compétences détaillées" },
+                { icon: "💼", label: "Expériences terrain" },
+                { icon: "💰", label: "Salaire souhaité" },
+                { icon: "🌍", label: "Disponibilité et localisation" },
+                { icon: "🗣️", label: "Langues parlées" },
+                { icon: "🔗", label: "Liens externes (portfolio, réseaux)" },
+              ].map(({ icon, label }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-3 bg-white rounded-2xl px-4 py-4 shadow-sm border border-gray-100"
+                >
+                  <span className="text-2xl shrink-0">{icon}</span>
+                  <span className="text-sm font-semibold text-gray-700 leading-snug">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Profils en avant */}
         {vedettes.length > 0 && (
           <section className="px-4 py-16" style={{ backgroundColor: "#EEF2F9" }}>
