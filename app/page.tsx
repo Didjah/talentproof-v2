@@ -271,6 +271,39 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Centre de formation */}
+        <section className="px-4 py-16" style={{ backgroundColor: "#EEF2F9" }}>
+          <div className="max-w-3xl mx-auto rounded-3xl border-2 bg-white p-8 sm:p-12" style={{ borderColor: NAVY }}>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-center" style={{ color: NAVY }}>
+              Vous dirigez un centre de formation ?
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base leading-relaxed text-center mb-8 max-w-xl mx-auto">
+              Donnez de la visibilité à vos formations et mettez en avant vos apprenants. Montrez les résultats concrets de votre centre.
+            </p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+              {[
+                "Page vitrine de votre centre",
+                "Présentation de vos formations",
+                "Profils de vos apprenants mis en avant",
+                "Contact direct avec les candidats",
+              ].map((point) => (
+                <li key={point} className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <span className="font-bold shrink-0" style={{ color: NAVY }}>✓</span> {point}
+                </li>
+              ))}
+            </ul>
+            <div className="text-center">
+              <Link
+                href="/inscription?role=centre"
+                className="inline-block rounded-full px-8 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: NAVY }}
+              >
+                Inscrire mon centre →
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Profils en avant */}
         {vedettes.length > 0 && (
           <section className="px-4 py-16" style={{ backgroundColor: "#EEF2F9" }}>
