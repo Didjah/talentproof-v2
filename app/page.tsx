@@ -133,6 +133,55 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* Pourquoi TalentProof ? */}
+        <section className="px-4 py-16 bg-white">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10" style={{ color: NAVY }}>
+              Pourquoi TalentProof ?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  icon: "🎯",
+                  title: "Un seul profil, toutes tes preuves",
+                  desc: "Photo, vidéo, diplôme, CV, réalisations sur un seul lien partageable",
+                },
+                {
+                  icon: "🌍",
+                  title: "Accessible à tous en Afrique",
+                  desc: "Pas besoin de diplôme pour s'inscrire. Ta compétence réelle suffit.",
+                },
+                {
+                  icon: "🔍",
+                  title: "Visible par les recruteurs",
+                  desc: "Les entreprises et recruteurs cherchent directement dans l'annuaire",
+                },
+                {
+                  icon: "📱",
+                  title: "100% mobile",
+                  desc: "Crée et partage ton profil depuis ton téléphone en quelques minutes",
+                },
+                {
+                  icon: "🤝",
+                  title: "Contact direct",
+                  desc: "WhatsApp, appel, email — les recruteurs te contactent directement sans intermédiaire",
+                },
+              ].map(({ icon, title, desc }) => (
+                <div
+                  key={title}
+                  className="flex items-start gap-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+                >
+                  <span className="text-4xl shrink-0">{icon}</span>
+                  <div>
+                    <p className="text-base font-bold mb-1" style={{ color: NAVY }}>{title}</p>
+                    <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Profils en avant */}
         {vedettes.length > 0 && (
           <section className="px-4 py-16" style={{ backgroundColor: "#EEF2F9" }}>
