@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -125,6 +125,7 @@ export default function ProfilPage() {
   const [profil, setProfil] = useState<Profil | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [entretienOpen, setEntretienOpen] = useState(false);
 
   useEffect(() => {
     async function fetchProfil() {
@@ -499,8 +500,26 @@ export default function ProfilPage() {
                   cls="border-2 border-gray-200 text-gray-700 hover:border-[#1B3A6B] hover:text-[#1B3A6B]"
                 />
               )}
+              {whatsappNum && (
+                <button
+                  onClick={() => setEntretienOpen(true)}
+                  className="flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: "#1B3A6B" }}
+                >
+                  📅 Programmer un entretien
+                </button>
+              )}
             </div>
           </Section>
+        )}
+
+        {/* Modal entretien */}
+        {entretienOpen && whatsappNum && (
+          <EntretienModal
+            prenom={profil.prenom}
+            whatsappNum={whatsappNum}
+            onClose={() => setEntretienOpen(false)}
+          />
         )}
 
         <div className="text-center py-4">
@@ -513,6 +532,169 @@ export default function ProfilPage() {
       <footer className="py-6 text-center text-sm text-white" style={{ backgroundColor: "#1B3A6B" }}>
         TalentProof — la preuve que la compétence mérite d'être vue.
       </footer>
+    </div>
+  );
+}
+
+// ─── Modal programmation entretien ────────────────────────────────────────────
+
+const TYPES_ENTRETIEN = [
+  { value: "En présentiel", label: "🏢 En présentiel" },
+  { value: "Par téléphone", label: "📞 Par téléphone" },
+  { value: "Par WhatsApp",  label: "📲 Par WhatsApp" },
+  { value: "Par vidéo",     label: "📹 Par vidéo" },
+];
+
+function formatDateFR(dateStr: string): string {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("fr-FR", {
+    day: "numeric", month: "long", year: "numeric",
+  });
+}
+
+function EntretienModal({
+  prenom,
+  whatsappNum,
+  onClose,
+}: {
+  prenom: string;
+  whatsappNum: string;
+  onClose: () => void;
+}) {
+  const today = new Date().toISOString().split("T")[0];
+  const [date, setDate] = useState(today);
+  const [heure, setHeure] = useState("09:00");
+  const [type, setType] = useState("Par WhatsApp");
+  const [message, setMessage] = useState("");
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  function buildWaUrl() {
+    const dateFR = formatDateFR(date);
+    let text = `Bonjour ${prenom}, je souhaite programmer un entretien avec vous le ${dateFR} à ${heure} (${type}).`;
+    if (message.trim()) text += ` ${message.trim()}`;
+    return `https://wa.me/${whatsappNum}?text=${encodeURIComponent(text)}`;
+  }
+
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+    >
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden">
+        {/* En-tête */}
+        <div className="px-6 py-5 flex items-center justify-between border-b border-gray-100" style={{ backgroundColor: "#1B3A6B" }}>
+          <div>
+            <h2 className="text-base font-extrabold text-white">📅 Programmer un entretien</h2>
+            <p className="text-xs text-white/70 mt-0.5">avec {prenom}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white/70 hover:text-white text-xl leading-none transition-colors"
+            aria-label="Fermer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Formulaire */}
+        <div className="px-6 py-5 flex flex-col gap-5">
+          {/* Date + Heure */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-gray-600">Date souhaitée</label>
+              <input
+                type="date"
+                value={date}
+                min={today}
+                onChange={(e) => setDate(e.target.value)}
+                className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-gray-600">Heure souhaitée</label>
+              <input
+                type="time"
+                value={heure}
+                onChange={(e) => setHeure(e.target.value)}
+                className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:border-[#1B3A6B]"
+              />
+            </div>
+          </div>
+
+          {/* Type d'entretien */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold text-gray-600">Type d&apos;entretien</label>
+            <div className="grid grid-cols-2 gap-2">
+              {TYPES_ENTRETIEN.map(({ value, label }) => (
+                <label
+                  key={value}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm cursor-pointer transition-colors ${
+                    type === value
+                      ? "border-[#1B3A6B] bg-[#EEF2F9] font-semibold text-[#1B3A6B]"
+                      : "border-gray-200 text-gray-600 hover:border-[#1B3A6B]/40"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="type_entretien"
+                    value={value}
+                    checked={type === value}
+                    onChange={() => setType(value)}
+                    className="sr-only"
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Message optionnel */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-gray-600">
+              Message complémentaire <span className="font-normal text-gray-400">(optionnel)</span>
+            </label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Ex : Je suis disponible toute la journée si cet horaire ne vous convient pas."
+              rows={3}
+              className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-[#1B3A6B]"
+            />
+          </div>
+
+          {/* Aperçu du message */}
+          <div className="rounded-xl bg-[#EEF2F9] border border-[#1B3A6B]/10 px-4 py-3">
+            <p className="text-xs font-bold text-[#1B3A6B] mb-1">Aperçu du message</p>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Bonjour {prenom}, je souhaite programmer un entretien avec vous le{" "}
+              <strong>{date ? formatDateFR(date) : "…"}</strong> à{" "}
+              <strong>{heure || "…"}</strong> (<em>{type}</em>).
+              {message.trim() ? ` ${message.trim()}` : ""}
+            </p>
+          </div>
+        </div>
+
+        {/* Bouton envoi */}
+        <div className="px-6 pb-6">
+          <a
+            href={buildWaUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full rounded-full py-3.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "#25D366" }}
+          >
+            📲 Envoyer via WhatsApp
+          </a>
+          <button
+            onClick={onClose}
+            className="mt-3 w-full text-center text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
