@@ -429,7 +429,7 @@ export default function AnnuairePage() {
       if (filters.ville && !normalise(t.utilisateurs?.ville ?? "").includes(normalise(filters.ville))) return false;
       if (filters.disponibilite && t.disponibilite !== filters.disponibilite) return false;
       if (filters.niveau && t.niveau_experience !== filters.niveau) return false;
-      if (verifieOnly && !t.verifie) return false;
+      if (verifieOnly && !t.utilisateurs?.verifie) return false;
       return true;
     });
   }, [talents, filters, verifieOnly]);
