@@ -268,6 +268,14 @@ export function TalentForm() {
     setGlobalError("");
 
     try {
+      // Test de connexion
+      const { error: pingError } = await supabase.from("utilisateurs").select("id").limit(1);
+      if (pingError) {
+        setGlobalError("Erreur de connexion à la base de données : " + pingError.message);
+        setLoading(false);
+        return;
+      }
+
       // 1. Créer l'utilisateur
       const { data: user, error: userError } = await supabase
         .from("utilisateurs")
@@ -341,8 +349,9 @@ export function TalentForm() {
       }
 
       router.push("/profil");
-    } catch {
-      setGlobalError("Une erreur inattendue s'est produite. Veuillez réessayer.");
+    } catch (err) {
+      setGlobalError("Erreur technique : " + (err instanceof Error ? err.message : JSON.stringify(err)));
+    } finally {
       setLoading(false);
     }
   }
