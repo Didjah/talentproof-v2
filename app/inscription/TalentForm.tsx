@@ -348,7 +348,7 @@ export function TalentForm() {
         return;
       }
 
-      router.push("/profil");
+      router.push(`/profil/${uid}`);
     } catch (err) {
       setGlobalError("Erreur technique : " + (err instanceof Error ? err.message : JSON.stringify(err)));
     } finally {
