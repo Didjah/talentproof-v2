@@ -285,7 +285,7 @@ export function TalentForm() {
           email: form.email.trim().toLowerCase(),
           telephone: form.telephone.trim(),
           role: "talent",
-          pin: form.pin,
+          pin_code: form.pin,
         })
         .select("id")
         .single();
