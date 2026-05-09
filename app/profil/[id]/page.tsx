@@ -149,6 +149,7 @@ export default function ProfilPage() {
   const [error, setError] = useState("");
   const [entretienOpen, setEntretienOpen] = useState(false);
   const [partagerOpen, setPartagerOpen] = useState(false);
+  const [lightbox, setLightbox] = useState<{ type: "image" | "video"; src: string } | null>(null);
 
   useEffect(() => {
     async function fetchProfil() {
@@ -287,9 +288,12 @@ export default function ProfilPage() {
             {/* Avatar */}
             <div className="mb-4">
               {profil.avatar_url ? (
-                <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden">
+                <button
+                  onClick={() => setLightbox({ type: "image", src: profil.avatar_url! })}
+                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden cursor-zoom-in focus:outline-none"
+                >
                   <Image src={profil.avatar_url} alt={nomComplet} fill className="object-cover" />
-                </div>
+                </button>
               ) : (
                 <div className="w-24 h-24 rounded-full border-4 border-white shadow-md flex items-center justify-center text-white text-3xl font-bold"
                   style={{ backgroundColor: "#1B3A6B" }}>
@@ -490,14 +494,23 @@ export default function ProfilPage() {
                     className="w-full rounded-xl bg-black max-h-80"
                     preload="metadata"
                   />
+                  <button
+                    onClick={() => setLightbox({ type: "video", src: profil.video_presentation_url! })}
+                    className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#1B3A6B] hover:underline"
+                  >
+                    ▶ Voir en plein écran
+                  </button>
                 </div>
               )}
               {profil.preuve_url && (
                 <div>
                   <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Photo de réalisation</p>
-                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100">
+                  <button
+                    onClick={() => setLightbox({ type: "image", src: profil.preuve_url! })}
+                    className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 cursor-zoom-in focus:outline-none block"
+                  >
                     <Image src={profil.preuve_url} alt="Photo de preuve" fill className="object-cover" />
-                  </div>
+                  </button>
                 </div>
               )}
               {profil.lien_externe && (
@@ -570,6 +583,15 @@ export default function ProfilPage() {
               )}
             </div>
           </Section>
+        )}
+
+        {/* Lightbox */}
+        {lightbox && (
+          <Lightbox
+            type={lightbox.type}
+            src={lightbox.src}
+            onClose={() => setLightbox(null)}
+          />
         )}
 
         {/* Modal entretien */}
@@ -868,6 +890,51 @@ function EntretienModal({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Lightbox ─────────────────────────────────────────────────────────────────
+
+function Lightbox({
+  type,
+  src,
+  onClose,
+}: {
+  type: "image" | "video";
+  src: string;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white text-xl hover:bg-white/20 transition-colors"
+        aria-label="Fermer"
+      >
+        ✕
+      </button>
+      {type === "image" ? (
+        <img
+          src={src}
+          alt=""
+          className="rounded-xl object-contain"
+          style={{ maxWidth: "90vw", maxHeight: "90vh" }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <video
+          src={src}
+          controls
+          autoPlay
+          className="rounded-xl bg-black"
+          style={{ maxWidth: "90vw", maxHeight: "90vh" }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
     </div>
   );
 }
