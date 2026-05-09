@@ -7,17 +7,36 @@ import { useRouter } from "next/navigation";
 const NAVY = "#1B3A6B";
 const GOLD = "#C9A84C";
 
+type Role = "talent" | "recruteur" | "entreprise" | "centre";
+
+const SESSION_KEYS: Record<Role, string> = {
+  talent:     "tp_talent",
+  recruteur:  "tp_recruteur",
+  entreprise: "tp_entreprise",
+  centre:     "tp_centre",
+};
+
+const DASHBOARD_HREF: Record<Role, string> = {
+  talent:     "/dashboard",
+  recruteur:  "/espace-recruteur",
+  entreprise: "/espace-entreprise",
+  centre:     "/espace-centre",
+};
+
 export default function Header() {
   const router = useRouter();
-  const [connected, setConnected] = useState(false);
+  const [role, setRole] = useState<Role | null>(null);
 
   useEffect(() => {
-    setConnected(!!localStorage.getItem("tp_talent"));
+    if (localStorage.getItem("tp_talent"))     { setRole("talent");     return; }
+    if (localStorage.getItem("tp_recruteur"))  { setRole("recruteur");  return; }
+    if (localStorage.getItem("tp_entreprise")) { setRole("entreprise"); return; }
+    if (localStorage.getItem("tp_centre"))     { setRole("centre");     return; }
   }, []);
 
   function handleLogout() {
-    localStorage.removeItem("tp_talent");
-    setConnected(false);
+    Object.values(SESSION_KEYS).forEach((k) => localStorage.removeItem(k));
+    setRole(null);
     router.push("/");
   }
 
@@ -39,10 +58,10 @@ export default function Header() {
 
         {/* Actions droite */}
         <div className="flex items-center gap-2 shrink-0">
-          {connected ? (
+          {role ? (
             <>
               <Link
-                href="/dashboard"
+                href={DASHBOARD_HREF[role]}
                 className="rounded-full px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                 style={{ backgroundColor: NAVY }}
               >

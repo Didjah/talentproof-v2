@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { supabase } from "@/src/lib/supabase";
+import Header from "@/components/Header";
 
 const NAVY = "#1B3A6B";
 const GOLD = "#C9A84C";
@@ -259,20 +260,7 @@ export default function EspaceCentrePage() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-gray-900" style={{ backgroundColor: "#EEF2F9" }}>
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link href="/">
-            <img src="/logo.png" alt="TalentProof" style={{ height: "32px", width: "auto" }} />
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="text-xs font-semibold text-gray-500 hover:text-red-500 transition-colors"
-          >
-            Déconnexion
-          </button>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
 
