@@ -275,7 +275,7 @@ export default function ModifierProfilPage() {
       const [avatar_url, video_presentation_url, realisation_url] = await Promise.all([
         newAvatar ? uploadFile(newAvatar, "avatars", `${uid}/avatar_${ts}`) : Promise.resolve(form.avatar_url),
         newVideo ? uploadFile(newVideo, "videos", `${uid}/video_${ts}`) : Promise.resolve(form.video_presentation_url),
-        newRealisation ? uploadFile(newRealisation, "realisations", `${uid}/realisation_${ts}`) : Promise.resolve(form.realisation_url),
+        newRealisation ? uploadFile(newRealisation, "preuves", `${uid}/realisation_${ts}`) : Promise.resolve(form.realisation_url),
       ]);
 
       const [{ error: userErr }, { error: talentErr }] = await Promise.all([
