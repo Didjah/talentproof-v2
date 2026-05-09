@@ -74,6 +74,10 @@ interface FormState {
   avatar_url: string | null;
   video_presentation_url: string | null;
   realisation_url: string | null;
+  cv_url: string | null;
+  diplome_url: string | null;
+  attestation_url: string | null;
+  certificat_url: string | null;
 }
 
 const EMPTY: FormState = {
@@ -84,6 +88,7 @@ const EMPTY: FormState = {
   competences_principales: "", competences_secondaires: "", outils: "",
   titre_profil: "", description_courte: "", bio: "",
   whatsapp: "", avatar_url: null, video_presentation_url: null, realisation_url: null,
+  cv_url: null, diplome_url: null, attestation_url: null, certificat_url: null,
 };
 
 const inputCls = "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#1B3A6B] focus:ring-2 focus:ring-[#1B3A6B]/20 transition bg-white w-full";
@@ -187,6 +192,10 @@ export default function ModifierProfilPage() {
   const [newAvatar, setNewAvatar] = useState<File | null>(null);
   const [newVideo, setNewVideo] = useState<File | null>(null);
   const [newRealisation, setNewRealisation] = useState<File | null>(null);
+  const [newCv, setNewCv] = useState<File | null>(null);
+  const [newDiplome, setNewDiplome] = useState<File | null>(null);
+  const [newAttestation, setNewAttestation] = useState<File | null>(null);
+  const [newCertificat, setNewCertificat] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -214,6 +223,7 @@ export default function ModifierProfilPage() {
           competences_principales, competences_secondaires, outils,
           titre_profil, description_courte, bio,
           whatsapp, avatar_url, video_presentation_url, realisation_url,
+          cv_url, diplome_url, attestation_url, certificat_url,
           utilisateurs ( prenom, nom )
         `)
         .eq("utilisateur_id", sess.utilisateur_id)
@@ -245,6 +255,10 @@ export default function ModifierProfilPage() {
           avatar_url: data.avatar_url ?? null,
           video_presentation_url: data.video_presentation_url ?? null,
           realisation_url: data.realisation_url ?? null,
+          cv_url: data.cv_url ?? null,
+          diplome_url: data.diplome_url ?? null,
+          attestation_url: data.attestation_url ?? null,
+          certificat_url: data.certificat_url ?? null,
         });
       }
       setLoading(false);
@@ -272,10 +286,14 @@ export default function ModifierProfilPage() {
       const uid = session.utilisateur_id;
       const ts = Date.now();
 
-      const [avatar_url, video_presentation_url, realisation_url] = await Promise.all([
+      const [avatar_url, video_presentation_url, realisation_url, cv_url, diplome_url, attestation_url, certificat_url] = await Promise.all([
         newAvatar ? uploadFile(newAvatar, "avatars", `${uid}/avatar_${ts}`) : Promise.resolve(form.avatar_url),
         newVideo ? uploadFile(newVideo, "videos", `${uid}/video_${ts}`) : Promise.resolve(form.video_presentation_url),
         newRealisation ? uploadFile(newRealisation, "preuves", `${uid}/realisation_${ts}`) : Promise.resolve(form.realisation_url),
+        newCv ? uploadFile(newCv, "documents", `${uid}/cv_${ts}`) : Promise.resolve(form.cv_url),
+        newDiplome ? uploadFile(newDiplome, "documents", `${uid}/diplome_${ts}`) : Promise.resolve(form.diplome_url),
+        newAttestation ? uploadFile(newAttestation, "documents", `${uid}/attestation_${ts}`) : Promise.resolve(form.attestation_url),
+        newCertificat ? uploadFile(newCertificat, "documents", `${uid}/certificat_${ts}`) : Promise.resolve(form.certificat_url),
       ]);
 
       const [{ error: userErr }, { error: talentErr }] = await Promise.all([
@@ -307,6 +325,10 @@ export default function ModifierProfilPage() {
             avatar_url,
             video_presentation_url,
             realisation_url,
+            cv_url,
+            diplome_url,
+            attestation_url,
+            certificat_url,
           })
           .eq("utilisateur_id", uid),
       ]);
@@ -314,10 +336,14 @@ export default function ModifierProfilPage() {
       if (userErr || talentErr) {
         setError(userErr?.message ?? talentErr?.message ?? "Erreur lors de la sauvegarde.");
       } else {
-        setForm((f) => ({ ...f, avatar_url, video_presentation_url, realisation_url }));
+        setForm((f) => ({ ...f, avatar_url, video_presentation_url, realisation_url, cv_url, diplome_url, attestation_url, certificat_url }));
         setNewAvatar(null);
         setNewVideo(null);
         setNewRealisation(null);
+        setNewCv(null);
+        setNewDiplome(null);
+        setNewAttestation(null);
+        setNewCertificat(null);
         setSuccess(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -557,6 +583,61 @@ export default function ModifierProfilPage() {
               }}
             />
           </div>
+        </SectionCard>
+
+        {/* ── Section : Documents ── */}
+        <SectionCard id="documents" icon="📄" title="Documents">
+          <FileRow
+            icon="📄"
+            label="CV (PDF)"
+            hint="PDF — max 5 Mo"
+            accept=".pdf"
+            currentUrl={form.cv_url}
+            newFile={newCv}
+            onNewFile={(f) => {
+              if (f && f.size > 5 * 1024 * 1024) { setError("Fichier trop lourd (max 5 Mo)"); return; }
+              setError(""); setNewCv(f);
+            }}
+          />
+          <div className="border-t border-gray-100" />
+          <FileRow
+            icon="🎓"
+            label="Diplôme (PDF)"
+            hint="PDF — max 5 Mo"
+            accept=".pdf"
+            currentUrl={form.diplome_url}
+            newFile={newDiplome}
+            onNewFile={(f) => {
+              if (f && f.size > 5 * 1024 * 1024) { setError("Fichier trop lourd (max 5 Mo)"); return; }
+              setError(""); setNewDiplome(f);
+            }}
+          />
+          <div className="border-t border-gray-100" />
+          <FileRow
+            icon="📋"
+            label="Attestation (PDF)"
+            hint="PDF — max 5 Mo"
+            accept=".pdf"
+            currentUrl={form.attestation_url}
+            newFile={newAttestation}
+            onNewFile={(f) => {
+              if (f && f.size > 5 * 1024 * 1024) { setError("Fichier trop lourd (max 5 Mo)"); return; }
+              setError(""); setNewAttestation(f);
+            }}
+          />
+          <div className="border-t border-gray-100" />
+          <FileRow
+            icon="🏅"
+            label="Certificat (PDF)"
+            hint="PDF — max 5 Mo"
+            accept=".pdf"
+            currentUrl={form.certificat_url}
+            newFile={newCertificat}
+            onNewFile={(f) => {
+              if (f && f.size > 5 * 1024 * 1024) { setError("Fichier trop lourd (max 5 Mo)"); return; }
+              setError(""); setNewCertificat(f);
+            }}
+          />
         </SectionCard>
 
         {/* Erreur */}
