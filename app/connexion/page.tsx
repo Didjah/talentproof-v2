@@ -25,7 +25,7 @@ export default function ConnexionPage() {
       .from("utilisateurs")
       .select("id")
       .eq("telephone", telephone.trim())
-      .eq("pin", pin.trim())
+      .eq("pin_code", pin.trim())
       .eq("role", "talent")
       .single();
 
