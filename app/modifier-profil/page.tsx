@@ -73,6 +73,7 @@ interface FormState {
   whatsapp: string;
   avatar_url: string | null;
   video_presentation_url: string | null;
+  realisation_url: string | null;
 }
 
 const EMPTY: FormState = {
@@ -82,7 +83,7 @@ const EMPTY: FormState = {
   type_contrat: "", salaire_souhaite: "",
   competences_principales: "", competences_secondaires: "", outils: "",
   titre_profil: "", description_courte: "", bio: "",
-  whatsapp: "", avatar_url: null, video_presentation_url: null,
+  whatsapp: "", avatar_url: null, video_presentation_url: null, realisation_url: null,
 };
 
 const inputCls = "rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#1B3A6B] focus:ring-2 focus:ring-[#1B3A6B]/20 transition bg-white w-full";
@@ -185,6 +186,7 @@ export default function ModifierProfilPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [newAvatar, setNewAvatar] = useState<File | null>(null);
   const [newVideo, setNewVideo] = useState<File | null>(null);
+  const [newRealisation, setNewRealisation] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -211,7 +213,7 @@ export default function ModifierProfilPage() {
           type_contrat, salaire_souhaite,
           competences_principales, competences_secondaires, outils,
           titre_profil, description_courte, bio,
-          whatsapp, avatar_url, video_presentation_url,
+          whatsapp, avatar_url, video_presentation_url, realisation_url,
           utilisateurs ( prenom, nom )
         `)
         .eq("utilisateur_id", sess.utilisateur_id)
@@ -242,6 +244,7 @@ export default function ModifierProfilPage() {
           whatsapp: data.whatsapp ?? "",
           avatar_url: data.avatar_url ?? null,
           video_presentation_url: data.video_presentation_url ?? null,
+          realisation_url: data.realisation_url ?? null,
         });
       }
       setLoading(false);
@@ -269,9 +272,10 @@ export default function ModifierProfilPage() {
       const uid = session.utilisateur_id;
       const ts = Date.now();
 
-      const [avatar_url, video_presentation_url] = await Promise.all([
+      const [avatar_url, video_presentation_url, realisation_url] = await Promise.all([
         newAvatar ? uploadFile(newAvatar, "avatars", `${uid}/avatar_${ts}`) : Promise.resolve(form.avatar_url),
         newVideo ? uploadFile(newVideo, "videos", `${uid}/video_${ts}`) : Promise.resolve(form.video_presentation_url),
+        newRealisation ? uploadFile(newRealisation, "realisations", `${uid}/realisation_${ts}`) : Promise.resolve(form.realisation_url),
       ]);
 
       const [{ error: userErr }, { error: talentErr }] = await Promise.all([
@@ -302,6 +306,7 @@ export default function ModifierProfilPage() {
             whatsapp: form.whatsapp.trim(),
             avatar_url,
             video_presentation_url,
+            realisation_url,
           })
           .eq("utilisateur_id", uid),
       ]);
@@ -309,9 +314,10 @@ export default function ModifierProfilPage() {
       if (userErr || talentErr) {
         setError(userErr?.message ?? talentErr?.message ?? "Erreur lors de la sauvegarde.");
       } else {
-        setForm((f) => ({ ...f, avatar_url, video_presentation_url }));
+        setForm((f) => ({ ...f, avatar_url, video_presentation_url, realisation_url }));
         setNewAvatar(null);
         setNewVideo(null);
+        setNewRealisation(null);
         setSuccess(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -526,6 +532,28 @@ export default function ModifierProfilPage() {
                 }
                 setError("");
                 setNewVideo(f);
+              }}
+            />
+          </div>
+
+          <div className="border-t border-gray-100" />
+
+          {/* Photo de réalisation */}
+          <div id="realisation" className="scroll-mt-24">
+            <FileRow
+              icon="📷"
+              label="Photo de réalisation"
+              hint="JPG, PNG, WEBP — max 10 Mo. Une photo montrant votre travail."
+              accept="image/jpeg,image/png,image/webp"
+              currentUrl={form.realisation_url}
+              newFile={newRealisation}
+              onNewFile={(f) => {
+                if (f && f.size > 10 * 1024 * 1024) {
+                  setError("Image trop lourde (max 10 Mo)");
+                  return;
+                }
+                setError("");
+                setNewRealisation(f);
               }}
             />
           </div>
