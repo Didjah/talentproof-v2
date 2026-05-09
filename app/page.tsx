@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabase } from "@/src/lib/supabase";
+import Header from "@/components/Header";
 
 export const revalidate = 3600;
 
@@ -60,26 +61,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link href="/" className="shrink-0">
-            <img src="/logo.png" alt="TalentProof" style={{ height: '36px', width: 'auto' }} />
-          </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
-            <Link href="/annuaire" className="hover:text-[#1B3A6B] transition-colors">Annuaire</Link>
-            <Link href="/recruteur" className="hover:text-[#1B3A6B] transition-colors">Espace Recruteur</Link>
-            <Link href="/partenaire" className="hover:text-[#1B3A6B] transition-colors">Devenir Partenaire</Link>
-          </nav>
-          <Link
-            href="/inscription?role=talent"
-            className="shrink-0 rounded-full px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: GOLD }}
-          >
-            Créer mon profil
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1">
         {/* Hero */}
