@@ -113,7 +113,7 @@ function ConnexionForm({ onSuccess }: { onSuccess: (s: Session) => void }) {
       .from("utilisateurs")
       .select("id")
       .eq("telephone", telephone.trim())
-      .eq("pin", pin.trim())
+      .eq("pin_code", pin.trim())
       .eq("role", "recruteur")
       .single();
 
