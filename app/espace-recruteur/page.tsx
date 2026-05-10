@@ -90,10 +90,8 @@ interface Candidature {
   talent_utilisateur_id: string | null;
   statut: string;
   created_at: string;
-  talent_prenom: string;
-  talent_nom: string;
-  talent_avatar: string | null;
-  talent_metier: string | null;
+  message: string | null;
+  utilisateurs: { prenom: string; nom: string; telephone: string } | null;
 }
 
 /* ─── Composant formulaire de connexion ──────────────────────────────────── */
@@ -273,13 +271,11 @@ export default function EspaceRecruteurPage() {
           talent_utilisateur_id,
           statut,
           created_at,
-          talents (
-            metier_principal,
-            avatar_url,
-            utilisateurs (
-              prenom,
-              nom
-            )
+          message,
+          utilisateurs!talent_utilisateur_id (
+            prenom,
+            nom,
+            telephone
           )
         `)
         .eq("recruteur_utilisateur_id", utilisateur_id)
@@ -287,27 +283,7 @@ export default function EspaceRecruteurPage() {
         .limit(20);
 
       if (!error && candData) {
-        const mapped = (candData as unknown[]).map((c: unknown) => {
-          const row = c as {
-            id: string; offre_id: string | null; offre_titre: string | null;
-            talent_utilisateur_id: string | null; statut: string; created_at: string;
-            talents: { metier_principal: string | null; avatar_url: string | null;
-              utilisateurs: { prenom: string; nom: string } | null } | null;
-          };
-          return {
-            id: row.id,
-            offre_id: row.offre_id,
-            offre_titre: row.offre_titre,
-            talent_utilisateur_id: row.talent_utilisateur_id,
-            statut: row.statut,
-            created_at: row.created_at,
-            talent_prenom: row.talents?.utilisateurs?.prenom ?? "",
-            talent_nom: row.talents?.utilisateurs?.nom ?? "",
-            talent_avatar: row.talents?.avatar_url ?? null,
-            talent_metier: row.talents?.metier_principal ?? null,
-          };
-        });
-        setCandidatures(mapped);
+        setCandidatures(candData as unknown as Candidature[]);
       }
     } catch { /* table n'existe pas encore */ }
 
@@ -589,27 +565,18 @@ export default function EspaceRecruteurPage() {
                   <div key={c.id} className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100 flex flex-col gap-3">
                     {/* Talent + offre */}
                     <div className="flex items-center gap-3">
-                      {c.talent_avatar ? (
-                        <img
-                          src={c.talent_avatar}
-                          alt={`${c.talent_prenom} ${c.talent_nom}`}
-                          className="w-10 h-10 rounded-full object-cover shrink-0 border-2"
-                          style={{ borderColor: NAVY + "33" }}
-                        />
-                      ) : (
-                        <div
-                          className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white text-xs font-bold"
-                          style={{ backgroundColor: NAVY }}
-                        >
-                          {`${c.talent_prenom?.[0] ?? ""}${c.talent_nom?.[0] ?? ""}`.toUpperCase() || "?"}
-                        </div>
-                      )}
+                      <div
+                        className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-white text-xs font-bold"
+                        style={{ backgroundColor: NAVY }}
+                      >
+                        {`${c.utilisateurs?.prenom?.[0] ?? ""}${c.utilisateurs?.nom?.[0] ?? ""}`.toUpperCase() || "?"}
+                      </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-sm text-gray-900 truncate">
-                          {`${c.talent_prenom} ${c.talent_nom}`.trim() || "Talent"}
+                          {`${c.utilisateurs?.prenom ?? ""} ${c.utilisateurs?.nom ?? ""}`.trim() || "Talent inconnu"}
                         </p>
-                        {c.talent_metier && (
-                          <p className="text-xs text-gray-500 truncate">{c.talent_metier}</p>
+                        {c.utilisateurs?.telephone && (
+                          <p className="text-xs text-gray-500 truncate">{c.utilisateurs.telephone}</p>
                         )}
                       </div>
                       <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${statStyle.cls}`}>
