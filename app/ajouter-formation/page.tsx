@@ -68,8 +68,20 @@ export default function AjouterFormationPage() {
     setError("");
     setLoading(true);
 
+    const { data: centreData } = await supabase
+      .from("centres_formation")
+      .select("id")
+      .eq("utilisateur_id", session.utilisateur_id)
+      .single();
+
+    if (!centreData) {
+      setLoading(false);
+      setError("Profil centre introuvable.");
+      return;
+    }
+
     const { error: dbError } = await supabase.from("formations").insert({
-      centre_id: session.utilisateur_id,
+      centre_id: centreData.id,
       nom: titre.trim(),
       description: description.trim() || null,
       duree: duree.trim() || null,
