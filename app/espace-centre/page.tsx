@@ -16,10 +16,12 @@ interface Session {
 }
 
 interface Formation {
+  id: string;
   nom: string;
-  duree: string;
-  prix: string;
-  niveau: string;
+  duree: string | null;
+  prix: string | null;
+  mode: string | null;
+  prochaine_session: string | null;
 }
 
 interface Centre {
@@ -32,7 +34,6 @@ interface Centre {
   taux_reussite: string | null;
   mode_formation: string | null;
   public_cible: string | null;
-  formations: Formation[] | null;
 }
 
 interface Apprenant {
@@ -142,6 +143,7 @@ function ConnexionForm({ onSuccess }: { onSuccess: (s: Session) => void }) {
 export default function EspaceCentrePage() {
   const [session, setSession] = useState<Session | null>(null);
   const [centre, setCentre] = useState<Centre | null>(null);
+  const [formations, setFormations] = useState<Formation[]>([]);
   const [apprenants, setApprenants] = useState<Apprenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
@@ -150,6 +152,7 @@ export default function EspaceCentrePage() {
     const { data: cData } = await supabase
       .from("centres_formation")
       .select(`
+        id,
         utilisateur_id,
         nom_centre,
         logo_url,
@@ -158,13 +161,22 @@ export default function EspaceCentrePage() {
         pays,
         taux_reussite,
         mode_formation,
-        public_cible,
-        formations
+        public_cible
       `)
       .eq("utilisateur_id", utilisateur_id)
       .single();
 
-    if (cData) setCentre(cData as Centre);
+    if (cData) {
+      setCentre(cData as Centre);
+
+      const { data: fData } = await supabase
+        .from("formations")
+        .select("id, nom, duree, prix, mode, prochaine_session")
+        .eq("centre_id", (cData as { id: string }).id)
+        .order("created_at", { ascending: false });
+
+      setFormations((fData as Formation[]) ?? []);
+    }
 
     // Apprenants — table peut ne pas exister encore
     try {
@@ -238,6 +250,7 @@ export default function EspaceCentrePage() {
     localStorage.removeItem("tp_centre");
     setSession(null);
     setCentre(null);
+    setFormations([]);
     setApprenants([]);
   }
 
@@ -251,8 +264,6 @@ export default function EspaceCentrePage() {
       </div>
     );
   }
-
-  const formations: Formation[] = Array.isArray(centre?.formations) ? centre!.formations! : [];
 
   function initiales(nom: string) {
     return nom.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) || "?";
@@ -380,15 +391,20 @@ export default function EspaceCentrePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {formations.map((f, i) => (
-                <div key={i} className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100 flex flex-col gap-3">
+              {formations.map((f) => (
+                <div key={f.id} className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100 flex flex-col gap-3">
                   <p className="font-bold text-sm leading-snug" style={{ color: NAVY }}>{f.nom}</p>
                   <div className="flex flex-wrap gap-2">
                     {f.duree && (
                       <span className="rounded-full bg-[#EEF2F9] px-3 py-1 text-xs font-medium text-gray-600">⏱ {f.duree}</span>
                     )}
-                    {f.niveau && (
-                      <span className="rounded-full bg-[#EEF2F9] px-3 py-1 text-xs font-medium text-gray-600">📶 {f.niveau}</span>
+                    {f.mode && (
+                      <span className="rounded-full bg-[#EEF2F9] px-3 py-1 text-xs font-medium text-gray-600">🖥 {f.mode}</span>
+                    )}
+                    {f.prochaine_session && (
+                      <span className="rounded-full bg-[#EEF2F9] px-3 py-1 text-xs font-medium text-gray-600">
+                        📅 {new Date(f.prochaine_session).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                      </span>
                     )}
                     {f.prix && (
                       <span
@@ -399,13 +415,6 @@ export default function EspaceCentrePage() {
                       </span>
                     )}
                   </div>
-                  <Link
-                    href="/modifier-centre"
-                    className="self-start text-xs font-semibold hover:underline"
-                    style={{ color: NAVY }}
-                  >
-                    Modifier →
-                  </Link>
                 </div>
               ))}
             </div>
