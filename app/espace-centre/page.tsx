@@ -28,7 +28,6 @@ interface Centre {
   utilisateur_id: string;
   nom_centre: string;
   logo_url: string | null;
-  domaine_formation: string | null;
   ville: string | null;
   pays: string | null;
   taux_reussite: string | null;
@@ -156,7 +155,6 @@ export default function EspaceCentrePage() {
         utilisateur_id,
         nom_centre,
         logo_url,
-        domaine_formation,
         ville,
         pays,
         taux_reussite,
@@ -301,9 +299,6 @@ export default function EspaceCentrePage() {
                 {centre?.nom_centre ?? "Mon centre"}
               </h1>
               <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
-                {centre?.domaine_formation && (
-                  <span className="text-xs text-gray-500">🎓 {centre.domaine_formation}</span>
-                )}
                 {centre?.ville && (
                   <span className="text-xs text-gray-500">
                     📍 {[centre.ville, centre.pays].filter(Boolean).join(", ")}
