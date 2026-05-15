@@ -41,7 +41,7 @@ interface Profil {
 interface Candidature {
   id: string;
   offre_titre: string | null;
-  entreprise_nom: string | null;
+  message: string | null;
   statut: string;
   created_at: string;
 }
@@ -146,7 +146,7 @@ export default function DashboardPage() {
       try {
         const { data: candData, error } = await supabase
           .from("candidatures")
-          .select("id, offre_titre, entreprise_nom, statut, created_at")
+          .select("id, offre_titre, message, statut, created_at")
           .eq("talent_utilisateur_id", utilisateur_id)
           .order("created_at", { ascending: false })
           .limit(10);
@@ -345,8 +345,8 @@ export default function DashboardPage() {
                       <p className="font-semibold text-sm text-gray-900 truncate">
                         {c.offre_titre ?? "Offre sans titre"}
                       </p>
-                      {c.entreprise_nom && (
-                        <p className="text-xs text-gray-500 truncate">{c.entreprise_nom}</p>
+                      {c.message && (
+                        <p className="text-xs text-gray-500 truncate">{c.message}</p>
                       )}
                       <p className="text-xs text-gray-400 mt-0.5">{formatDate(c.created_at)}</p>
                     </div>
