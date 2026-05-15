@@ -9,10 +9,12 @@ const NAVY = "#1B3A6B";
 const GOLD = "#C9A84C";
 
 interface Formation {
+  id: string;
   nom: string;
-  duree: string;
-  prix: string;
-  niveau: string;
+  duree: string | null;
+  prix: string | null;
+  mode: string | null;
+  prochaine_session: string | null;
 }
 
 interface Apprenant {
@@ -65,6 +67,7 @@ function initFromNames(prenom: string, nom: string) {
 export default function CentrePage() {
   const { id } = useParams<{ id: string }>();
   const [centre, setCentre] = useState<Centre | null>(null);
+  const [formations, setFormations] = useState<Formation[]>([]);
   const [apprenants, setApprenants] = useState<Apprenant[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,10 +76,18 @@ export default function CentrePage() {
       const { data: centreData } = await supabase
         .from("centres_formation")
         .select("*")
-        .eq("utilisateur_id", id)
+        .eq("id", id)
         .single();
 
       setCentre(centreData as Centre | null);
+
+      const { data: formationsData } = await supabase
+        .from("formations")
+        .select("id, nom, duree, prix, mode, prochaine_session")
+        .eq("centre_id", id)
+        .order("created_at", { ascending: false });
+
+      setFormations((formationsData as Formation[]) ?? []);
 
       // apprenants table may not exist yet — ignore errors
       try {
@@ -95,7 +106,7 @@ export default function CentrePage() {
               )
             )
           `)
-          .eq("centre_utilisateur_id", id)
+          .eq("centre_utilisateur_id", (centreData as { utilisateur_id: string } | null)?.utilisateur_id ?? "")
           .limit(6);
 
         if (!error && appData) {
@@ -131,7 +142,6 @@ export default function CentrePage() {
   }
 
   const lieu = [centre.ville, centre.pays].filter(Boolean).join(", ");
-  const formations: Formation[] = Array.isArray(centre.formations) ? centre.formations : [];
   const hasPresentation = centre.description || centre.mission || centre.vision;
 
   return (
@@ -311,9 +321,9 @@ export default function CentrePage() {
                           ⏱ {f.duree}
                         </span>
                       )}
-                      {f.niveau && (
+                      {f.mode && (
                         <span className="rounded-full bg-[#EEF2F9] px-3 py-1 text-xs font-medium text-gray-600">
-                          📶 {f.niveau}
+                          🖥 {f.mode}
                         </span>
                       )}
                       {f.prix && (

@@ -25,6 +25,7 @@ interface Formation {
 }
 
 interface Centre {
+  id: string;
   utilisateur_id: string;
   nom_centre: string;
   logo_url: string | null;
@@ -306,7 +307,7 @@ export default function EspaceCentrePage() {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href={`/centre/${session.utilisateur_id}`}
+              href={`/centre/${centre?.id}`}
               className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: NAVY }}
             >
