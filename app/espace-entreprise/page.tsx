@@ -46,8 +46,6 @@ interface Entreprise {
   nom_entreprise: string;
   logo_url: string | null;
   secteur: string | null;
-  ville: string | null;
-  pays: string | null;
 }
 
 interface Offre {
@@ -178,7 +176,7 @@ export default function EspaceEntreprisePage() {
     // Entreprise profile
     const { data: eData } = await supabase
       .from("entreprises")
-      .select("id, utilisateur_id, nom_entreprise, logo_url, secteur, ville, pays")
+      .select("id, utilisateur_id, nom_entreprise, logo_url, secteur")
       .eq("utilisateur_id", utilisateur_id)
       .single();
 
@@ -347,7 +345,6 @@ export default function EspaceEntreprisePage() {
               </h1>
               <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
                 {entreprise?.secteur && <span className="text-xs text-gray-500">🏭 {entreprise.secteur}</span>}
-                {entreprise?.ville && <span className="text-xs text-gray-500">📍 {[entreprise.ville, entreprise.pays].filter(Boolean).join(", ")}</span>}
               </div>
             </div>
           </div>
