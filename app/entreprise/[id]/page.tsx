@@ -58,7 +58,7 @@ export default function EntreprisePage() {
       const { data } = await supabase
         .from("entreprises")
         .select("*")
-        .eq("utilisateur_id", id)
+        .eq("id", id)
         .single();
       setEntreprise(data as Entreprise | null);
       setLoading(false);

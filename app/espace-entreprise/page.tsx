@@ -41,6 +41,7 @@ interface Session {
 }
 
 interface Entreprise {
+  id: string;
   utilisateur_id: string;
   nom_entreprise: string;
   logo_url: string | null;
@@ -177,7 +178,7 @@ export default function EspaceEntreprisePage() {
     // Entreprise profile
     const { data: eData } = await supabase
       .from("entreprises")
-      .select("utilisateur_id, nom_entreprise, logo_url, secteur, ville, pays")
+      .select("id, utilisateur_id, nom_entreprise, logo_url, secteur, ville, pays")
       .eq("utilisateur_id", utilisateur_id)
       .single();
 
@@ -353,7 +354,7 @@ export default function EspaceEntreprisePage() {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href={`/entreprise/${session.utilisateur_id}`}
+              href={`/entreprise/${entreprise?.id}`}
               className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: NAVY }}
             >
