@@ -149,7 +149,7 @@ export default function EspaceCentrePage() {
   const [authChecked, setAuthChecked] = useState(false);
 
   const fetchDashboard = useCallback(async (utilisateur_id: string) => {
-    const { data: cData } = await supabase
+    const { data: cData, error: cError } = await supabase
       .from("centres_formation")
       .select(`
         id,
@@ -166,14 +166,18 @@ export default function EspaceCentrePage() {
       .eq("utilisateur_id", utilisateur_id)
       .single();
 
+    console.log('cData:', cData, 'error:', cError);
+
     if (cData) {
       setCentre(cData as Centre);
 
-      const { data: fData } = await supabase
+      const { data: fData, error: fError } = await supabase
         .from("formations")
         .select("id, nom, duree, prix, mode, prochaine_session")
         .eq("centre_id", (cData as { id: string }).id)
         .order("created_at", { ascending: false });
+
+      console.log('formations:', fData, 'error:', fError);
 
       setFormations((fData as Formation[]) ?? []);
     }
