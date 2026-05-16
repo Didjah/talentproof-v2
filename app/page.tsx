@@ -244,7 +244,7 @@ export default function HomePage() {
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────── */}
       <section
         className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden px-4"
-        style={{ background: `linear-gradient(160deg, ${NAVY} 0%, ${DARK_NAVY} 100%)` }}
+        style={{ backgroundColor: NAVY }}
       >
         <HeroParticles />
 
@@ -365,16 +365,17 @@ export default function HomePage() {
             ].map(({ icon, title, desc }) => (
               <div
                 key={title}
-                className="flex flex-col items-center text-center gap-4 bg-white rounded-2xl shadow-sm p-8"
+                className="flex flex-col items-center text-center gap-4 rounded-2xl p-8"
+                style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
               >
                 <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0"
-                  style={{ backgroundColor: NAVY + "12" }}
+                  style={{ backgroundColor: "rgba(255,255,255,0.12)" }}
                 >
                   {icon}
                 </div>
-                <p className="text-lg font-bold" style={{ color: NAVY }}>{title}</p>
-                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+                <p className="text-lg font-bold text-white">{title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{desc}</p>
               </div>
             ))}
           </div>
