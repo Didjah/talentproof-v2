@@ -101,7 +101,7 @@ function getBadge(score: number): ScoreBadge {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+    <section className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-6">
       <h2 className="text-base font-bold mb-4 pb-2 border-b border-gray-100" style={{ color: "#1B3A6B" }}>
         {title}
       </h2>
@@ -282,7 +282,7 @@ export default function ProfilPage() {
         {/* ─── 1. EN-TÊTE ─────────────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {/* Bandeau vert */}
-          <div className="h-24 w-full" style={{ backgroundColor: "#1B3A6B" }} />
+          <div className="h-28 w-full" style={{ background: "linear-gradient(160deg,#1B3A6B 0%,#0D1F3C 100%)" }} />
 
           <div className="px-6 pb-6 -mt-12">
             {/* Avatar */}
@@ -290,7 +290,7 @@ export default function ProfilPage() {
               {profil.avatar_url ? (
                 <button
                   onClick={() => setLightbox({ type: "image", src: profil.avatar_url! })}
-                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden cursor-zoom-in focus:outline-none"
+                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-2xl overflow-hidden cursor-zoom-in focus:outline-none ring-4 ring-[#C9A84C]/50"
                 >
                   <Image src={profil.avatar_url} alt={nomComplet} fill className="object-cover" />
                 </button>
@@ -306,11 +306,14 @@ export default function ProfilPage() {
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-extrabold text-gray-900">{nomComplet}</h1>
               {profil.verifie && (
-                <span
-                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold text-white"
-                  style={{ backgroundColor: "#C9A84C" }}
-                >
-                  ✓ Vérifié
+                <span className="relative inline-flex items-center">
+                  <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: "#22C55E" }} />
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold text-white"
+                    style={{ backgroundColor: "#22C55E", boxShadow: "0 0 12px rgba(34,197,94,0.5)" }}
+                  >
+                    ✓ Vérifié
+                  </span>
                 </span>
               )}
             </div>
@@ -363,7 +366,7 @@ export default function ProfilPage() {
                     <div className="flex items-center gap-2">
                       <span
                         className={`text-xs font-bold rounded-full px-2.5 py-0.5 ${badge.bg}`}
-                        style={{ color: badge.color }}
+                        style={{ color: badge.color, boxShadow: `0 0 10px ${badge.color}66` }}
                       >
                         {badge.emoji} {badge.label}
                       </span>

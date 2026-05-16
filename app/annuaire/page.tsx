@@ -123,7 +123,7 @@ function TalentCard({ talent }: { talent: Talent }) {
   const badge = getBadge(score);
 
   return (
-    <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
+    <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-1 hover:border-[#C9A84C]/30 transition-all duration-300 overflow-hidden group">
       {/* En-tête colorée */}
       <div className="h-3 w-full" style={{ backgroundColor: "#1B3A6B" }} />
 
@@ -144,8 +144,11 @@ function TalentCard({ talent }: { talent: Talent }) {
             <div className="flex items-center gap-1.5 flex-wrap">
               <p className="font-bold text-gray-900 truncate">{nomComplet}</p>
               {talent.utilisateurs?.verifie && (
-                <span className="shrink-0 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: "#C9A84C" }}>
-                  ✓ Vérifié
+                <span className="relative shrink-0 inline-flex items-center">
+                  <span className="absolute inset-0 rounded-full animate-ping opacity-25" style={{ backgroundColor: "#C9A84C" }} />
+                  <span className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: "#C9A84C" }}>
+                    ✓ Vérifié
+                  </span>
                 </span>
               )}
             </div>
@@ -192,7 +195,7 @@ function TalentCard({ talent }: { talent: Talent }) {
           </span>
           <span
             className={`text-xs font-bold rounded-full px-2.5 py-1 ${badge.bg}`}
-            style={{ color: badge.color }}
+            style={{ color: badge.color, boxShadow: `0 0 8px ${badge.color}66` }}
           >
             {badge.emoji} {badge.label}
           </span>
@@ -585,7 +588,7 @@ export default function AnnuairePage() {
 
           {/* ─── Sidebar filtres (desktop) ─── */}
           <aside className="hidden lg:block w-64 shrink-0">
-            <div className="sticky top-24 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <div className="sticky top-24 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-lg p-5">
               <h2 className="text-sm font-bold text-gray-800 mb-4">Filtrer</h2>
               <FilterPanel {...filterPanelProps} />
             </div>

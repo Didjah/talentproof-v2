@@ -8,6 +8,15 @@ import { supabase } from "@/src/lib/supabase";
 const NAVY = "#1B3A6B";
 const GOLD = "#C9A84C";
 
+const STATUT_BORDER: Record<string, string> = {
+  recu:           "border-l-[#1B3A6B]",
+  consulte:       "border-l-[#C9A84C]",
+  preselectionne: "border-l-purple-500",
+  contacte:       "border-l-yellow-500",
+  retenu:         "border-l-green-500",
+  refuse:         "border-l-red-500",
+};
+
 const STATUT_STYLE: Record<string, { label: string; cls: string }> = {
   recu:          { label: "Reçu",          cls: "bg-gray-100 text-gray-600" },
   consulte:      { label: "Consulté",      cls: "bg-blue-100 text-blue-700" },
@@ -60,9 +69,9 @@ function computeScore(p: Profil): number {
 }
 
 function scoreMeta(score: number) {
-  if (score <= 40) return { color: "#EF4444", badge: "🥉 Bronze" };
-  if (score <= 70) return { color: "#F97316", badge: "🥈 Argent" };
-  return { color: "#22C55E", badge: "🥇 Or" };
+  if (score <= 40) return { color: "#EF4444", badge: "🥉 Bronze", gradient: "linear-gradient(90deg,#CD7F32,#EF4444)", glow: "rgba(205,127,50,0.45)" };
+  if (score <= 70) return { color: "#F97316", badge: "🥈 Argent", gradient: "linear-gradient(90deg,#9CA3AF,#F97316)", glow: "rgba(249,115,22,0.35)" };
+  return { color: "#22C55E", badge: "🥇 Or", gradient: "linear-gradient(90deg,#C9A84C,#22C55E)", glow: "rgba(201,168,76,0.5)" };
 }
 
 function formatDate(iso: string) {
@@ -179,7 +188,7 @@ export default function DashboardPage() {
   }
 
   const score = computeScore(profil);
-  const { color: scoreColor, badge } = scoreMeta(score);
+  const { color: scoreColor, badge, gradient: scoreGradient, glow: scoreGlow } = scoreMeta(score);
 
   const quickActions = [
     { condition: !profil.avatar_url,                    icon: "📸", label: "Ajouter une photo",         href: "/modifier-profil#photo" },
@@ -208,7 +217,7 @@ export default function DashboardPage() {
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
 
         {/* ── En-tête dashboard ── */}
-        <section className="bg-white rounded-3xl p-6 sm:p-8 flex flex-col gap-5 shadow-sm">
+        <section className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 flex flex-col gap-5 shadow-xl border border-gray-100/80">
           {/* Avatar + bonjour */}
           <div className="flex items-center gap-4">
             {profil.avatar_url ? (
@@ -240,13 +249,13 @@ export default function DashboardPage() {
               <span className="text-sm font-semibold text-gray-700">Score de profil</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold" style={{ color: scoreColor }}>{score}/100</span>
-                <span className="text-sm">{badge}</span>
+                <span className="text-sm font-semibold rounded-full px-2 py-0.5" style={{ color: scoreColor, backgroundColor: scoreColor + "18", boxShadow: `0 0 10px ${scoreGlow}` }}>{badge}</span>
               </div>
             </div>
             <div className="w-full h-3 rounded-full bg-gray-100 overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700"
-                style={{ width: `${score}%`, backgroundColor: scoreColor }}
+                style={{ width: `${score}%`, background: scoreGradient }}
               />
             </div>
             <p className="text-xs text-gray-400">
@@ -260,8 +269,8 @@ export default function DashboardPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/profil/${profil.utilisateur_id}`}
-              className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: NAVY }}
+              className="inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:opacity-90 hover:shadow-[0_0_20px_rgba(201,168,76,0.35)]"
+              style={{ background: `linear-gradient(135deg, ${NAVY}, #2563EB)` }}
             >
               👁 Voir mon profil public
             </Link>
@@ -299,13 +308,13 @@ export default function DashboardPage() {
 
         {/* ── Statistiques ── */}
         <section className="grid grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl px-5 py-5 shadow-sm flex flex-col gap-1 border border-gray-100">
+          <div className="bg-white rounded-2xl px-5 py-5 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex flex-col gap-1 border border-gray-100 cursor-default">
             <span className="text-3xl font-extrabold" style={{ color: GOLD }}>
               {vues !== null ? vues : "—"}
             </span>
             <span className="text-xs text-gray-500 font-medium">Vues du profil</span>
           </div>
-          <div className="bg-white rounded-2xl px-5 py-5 shadow-sm flex flex-col gap-1 border border-gray-100">
+          <div className="bg-white rounded-2xl px-5 py-5 shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex flex-col gap-1 border border-gray-100 cursor-default">
             <span className="text-3xl font-extrabold" style={{ color: GOLD }}>
               {candidatures.length}
             </span>
@@ -339,7 +348,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={c.id}
-                    className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100 flex items-center justify-between gap-4"
+                    className={`bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100 border-l-4 flex items-center justify-between gap-4 transition-all duration-300 hover:shadow-md ${STATUT_BORDER[c.statut] ?? "border-l-gray-300"}`}
                   >
                     <div className="min-w-0">
                       <p className="font-semibold text-sm text-gray-900 truncate">
