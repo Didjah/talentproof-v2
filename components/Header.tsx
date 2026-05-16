@@ -53,6 +53,7 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
           <Link href="/annuaire" className="hover:text-[#1B3A6B] transition-colors">Talents</Link>
           <Link href="/annuaire-entreprises" className="hover:text-[#1B3A6B] transition-colors">Entreprises</Link>
+          <Link href="/annuaire-centres" className="hover:text-[#1B3A6B] transition-colors">Centres</Link>
           <Link href="/espace-recruteur" className="hover:text-[#1B3A6B] transition-colors">Espace Recruteur</Link>
           <Link href="/a-propos" className="hover:text-[#1B3A6B] transition-colors">Devenir Partenaire</Link>
         </nav>
