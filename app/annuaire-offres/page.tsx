@@ -13,11 +13,14 @@ interface Offre {
   id: string;
   titre: string;
   description: string | null;
-  localisation: string | null;
+  competences_requises: string | null;
+  niveau_experience: string | null;
+  annees_experience: string | null;
+  salaire_propose: string | null;
   type_contrat: string | null;
-  salaire: string | null;
-  diplome_requis: string | null;
-  experience_requise: string | null;
+  ville: string | null;
+  pays: string | null;
+  date_debut: string | null;
   statut: string | null;
   created_at: string;
   recruteur_utilisateur_id: string | null;
@@ -47,16 +50,9 @@ function dateRelative(dateStr: string): string {
   return `Il y a ${mois} mois`;
 }
 
-function estSansDiplome(diplome: string | null): boolean {
-  if (!diplome) return true;
-  const d = diplome.trim().toLowerCase();
-  return d === "" || d === "aucun" || d === "none";
-}
-
-function estTeletravail(localisation: string | null): boolean {
-  if (!localisation) return false;
-  const l = normalise(localisation);
-  return l.includes("teletravail") || l.includes("remote");
+function estTeletravail(ville: string | null, pays: string | null): boolean {
+  const haystack = normalise([ville, pays].filter(Boolean).join(" "));
+  return haystack.includes("teletravail") || haystack.includes("remote");
 }
 
 // ─── Chip type contrat ────────────────────────────────────────────────────────
@@ -83,7 +79,9 @@ function ContratChip({ type }: { type: string }) {
 
 function OffreCard({ o }: { o: Offre }) {
   const urgent = ageEnJours(o.created_at) < 3;
-  const sansDiplome = estSansDiplome(o.diplome_requis);
+  const lieu = [o.ville, o.pays].filter(Boolean).join(", ");
+  const experience = [o.niveau_experience, o.annees_experience ? `${o.annees_experience} ans` : null]
+    .filter(Boolean).join(" · ");
 
   return (
     <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
@@ -102,26 +100,32 @@ function OffreCard({ o }: { o: Offre }) {
               🚨 Urgent
             </span>
           )}
-          {sansDiplome && (
-            <span className="rounded-full bg-green-100 text-green-700 text-xs font-bold px-3 py-1">
-              🎓 Sans diplôme
-            </span>
-          )}
+          <span className="rounded-full bg-green-100 text-green-700 text-xs font-bold px-3 py-1">
+            🎓 Sans diplôme
+          </span>
           {o.type_contrat && <ContratChip type={o.type_contrat} />}
         </div>
 
         {/* Localisation */}
-        {o.localisation && (
+        {lieu && (
           <p className="text-xs text-gray-500 flex items-center gap-1">
-            <span>📍</span> {o.localisation}
+            <span>📍</span> {lieu}
           </p>
         )}
 
         {/* Salaire */}
-        {o.salaire && (
+        {o.salaire_propose && (
           <p className="text-xs text-gray-500">
             <span className="font-semibold text-gray-700">Salaire :</span>{" "}
-            {o.salaire}
+            {o.salaire_propose}
+          </p>
+        )}
+
+        {/* Expérience */}
+        {experience && (
+          <p className="text-xs text-gray-500">
+            <span className="font-semibold text-gray-700">Expérience :</span>{" "}
+            {experience}
           </p>
         )}
 
@@ -172,8 +176,6 @@ interface FilterPanelProps {
   total: number;
   urgentOnly: boolean;
   onToggleUrgent: (v: boolean) => void;
-  sansDiplomeOnly: boolean;
-  onToggleSansDiplome: (v: boolean) => void;
   teletravailOnly: boolean;
   onToggleTeletravail: (v: boolean) => void;
   triPar: string;
@@ -183,7 +185,6 @@ interface FilterPanelProps {
 function FilterPanel({
   filters, onChange, onReset, count, total,
   urgentOnly, onToggleUrgent,
-  sansDiplomeOnly, onToggleSansDiplome,
   teletravailOnly, onToggleTeletravail,
   triPar, onTriPar,
 }: FilterPanelProps) {
@@ -205,7 +206,7 @@ function FilterPanel({
           type="text"
           value={filters.texte}
           onChange={(e) => onChange("texte", e.target.value)}
-          placeholder="Titre, localisation, description…"
+          placeholder="Titre, ville, pays, description…"
           className="w-full rounded-xl border border-gray-200 pl-9 pr-4 py-2.5 text-sm outline-none focus:border-[#1B3A6B] focus:ring-2 focus:ring-[#1B3A6B]/20 transition"
         />
       </div>
@@ -233,18 +234,6 @@ function FilterPanel({
         />
         <span className="text-sm font-semibold" style={{ color: NAVY }}>
           🚨 Urgent (moins de 3 jours)
-        </span>
-      </label>
-
-      <label className="flex items-center gap-2.5 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={sansDiplomeOnly}
-          onChange={(e) => onToggleSansDiplome(e.target.checked)}
-          className="w-4 h-4 rounded accent-[#C9A84C]"
-        />
-        <span className="text-sm font-semibold" style={{ color: NAVY }}>
-          🎓 Sans diplôme requis
         </span>
       </label>
 
@@ -281,7 +270,6 @@ export default function AnnuaireOffresPage() {
   const [filters, setFilters] = useState<Filters>(FILTERS_INIT);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [urgentOnly, setUrgentOnly] = useState(false);
-  const [sansDiplomeOnly, setSansDiplomeOnly] = useState(false);
   const [teletravailOnly, setTeletravailOnly] = useState(false);
   const [triPar, setTriPar] = useState("recentes");
 
@@ -290,7 +278,7 @@ export default function AnnuaireOffresPage() {
       const { data, error: err } = await supabase
         .from("offres_emploi")
         .select(
-          "id, titre, description, localisation, type_contrat, salaire, diplome_requis, experience_requise, statut, created_at, recruteur_utilisateur_id, entreprise_utilisateur_id"
+          "id, titre, description, competences_requises, niveau_experience, annees_experience, salaire_propose, type_contrat, ville, pays, date_debut, statut, created_at, recruteur_utilisateur_id, entreprise_utilisateur_id"
         )
         .eq("statut", "ouverte")
         .order("created_at", { ascending: false });
@@ -312,7 +300,6 @@ export default function AnnuaireOffresPage() {
   function resetAll() {
     setFilters(FILTERS_INIT);
     setUrgentOnly(false);
-    setSansDiplomeOnly(false);
     setTeletravailOnly(false);
     setTriPar("recentes");
   }
@@ -322,14 +309,13 @@ export default function AnnuaireOffresPage() {
       if (filters.texte) {
         const q = normalise(filters.texte);
         const haystack = normalise(
-          [o.titre, o.description, o.localisation].filter(Boolean).join(" ")
+          [o.titre, o.description, o.ville, o.pays].filter(Boolean).join(" ")
         );
         if (!haystack.includes(q)) return false;
       }
       if (filters.typeContrat && o.type_contrat !== filters.typeContrat) return false;
       if (urgentOnly && ageEnJours(o.created_at) >= 3) return false;
-      if (sansDiplomeOnly && !estSansDiplome(o.diplome_requis)) return false;
-      if (teletravailOnly && !estTeletravail(o.localisation)) return false;
+      if (teletravailOnly && !estTeletravail(o.ville, o.pays)) return false;
       return true;
     });
 
@@ -338,15 +324,13 @@ export default function AnnuaireOffresPage() {
         (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       );
     }
-    // "recentes" : déjà trié par created_at desc depuis Supabase
 
     return result;
-  }, [offres, filters, urgentOnly, sansDiplomeOnly, teletravailOnly, triPar]);
+  }, [offres, filters, urgentOnly, teletravailOnly, triPar]);
 
   const hasActiveFilter =
     Object.values(filters).some(Boolean) ||
     urgentOnly ||
-    sansDiplomeOnly ||
     teletravailOnly ||
     triPar !== "recentes";
 
@@ -358,8 +342,6 @@ export default function AnnuaireOffresPage() {
     total: offres.length,
     urgentOnly,
     onToggleUrgent: setUrgentOnly,
-    sansDiplomeOnly,
-    onToggleSansDiplome: setSansDiplomeOnly,
     teletravailOnly,
     onToggleTeletravail: setTeletravailOnly,
     triPar,
@@ -435,7 +417,6 @@ export default function AnnuaireOffresPage() {
                       {[
                         ...Object.values(filters).filter(Boolean),
                         urgentOnly ? "u" : null,
-                        sansDiplomeOnly ? "d" : null,
                         teletravailOnly ? "t" : null,
                         triPar !== "recentes" ? triPar : null,
                       ].filter(Boolean).length}
