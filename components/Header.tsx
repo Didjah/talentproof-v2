@@ -54,6 +54,7 @@ export default function Header() {
           <Link href="/annuaire" className="hover:text-[#1B3A6B] transition-colors">Talents</Link>
           <Link href="/annuaire-entreprises" className="hover:text-[#1B3A6B] transition-colors">Entreprises</Link>
           <Link href="/annuaire-centres" className="hover:text-[#1B3A6B] transition-colors">Centres</Link>
+          <Link href="/annuaire-offres" className="hover:text-[#1B3A6B] transition-colors">Offres</Link>
           <Link href="/espace-recruteur" className="hover:text-[#1B3A6B] transition-colors">Espace Recruteur</Link>
           <Link href="/a-propos" className="hover:text-[#1B3A6B] transition-colors">Devenir Partenaire</Link>
         </nav>
