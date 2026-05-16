@@ -244,7 +244,7 @@ export default function HomePage() {
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────── */}
       <section
         className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden px-4"
-        style={{ backgroundColor: NAVY }}
+        style={{ backgroundColor: DARK_NAVY }}
       >
         <HeroParticles />
 
@@ -337,7 +337,7 @@ export default function HomePage() {
       </section>
 
       {/* ── SECTION 2 — POURQUOI TALENTPROOF ─────────────────────────── */}
-      <section className="px-4 py-16" style={{ backgroundColor: NAVY }}>
+      <section className="px-4 py-16" style={{ backgroundColor: DARK_NAVY }}>
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-center mb-2 text-white">
             Pourquoi TalentProof ?
@@ -383,7 +383,7 @@ export default function HomePage() {
       </section>
 
       {/* ── SECTION 3 — CTA ──────────────────────────────────────────── */}
-      <section className="px-4 py-20 text-center" style={{ backgroundColor: NAVY }}>
+      <section className="px-4 py-20 text-center" style={{ backgroundColor: DARK_NAVY }}>
         <div className="max-w-2xl mx-auto flex flex-col items-center gap-6">
           <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
             Prêt à prouver votre talent ?
