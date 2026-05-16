@@ -436,7 +436,64 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* ── SECTION 5 — TALENTS ──────────────────────────────────────── */}
+      {/* ── FOOTER ───────────────────────────────────────────────────── */}
+      <footer style={{ backgroundColor: DARK_NAVY }}>
+        <div className="max-w-6xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-4 gap-10 border-t border-white/10">
+          <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
+            <img src="/logo.png" alt="TalentProof" style={{ height: "40px", width: "auto" }} />
+            <p className="text-white/70 text-sm leading-relaxed">
+              La plateforme qui prouve que la compétence mérite d&apos;être vue.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Annuaires</p>
+            {[
+              { label: "Talents",     href: "/annuaire" },
+              { label: "Entreprises", href: "/annuaire-entreprises" },
+              { label: "Centres",     href: "/annuaire-centres" },
+              { label: "Offres",      href: "/annuaire-offres" },
+            ].map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Je suis…</p>
+            {[
+              { label: "Un Talent",             href: "/inscription?role=talent" },
+              { label: "Un Recruteur",           href: "/inscription?role=recruteur" },
+              { label: "Une Entreprise",         href: "/inscription?role=entreprise" },
+              { label: "Un Centre de formation", href: "/inscription?role=centre" },
+            ].map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Informations</p>
+            {[
+              { label: "À propos",                 href: "/a-propos" },
+              { label: "Contact",                  href: "/contact" },
+              { label: "Conditions d'utilisation", href: "/conditions-utilisation" },
+              { label: "Confidentialité",           href: "/confidentialite" },
+            ].map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
+            <span>© 2025 TalentProof Africa. Tous droits réservés.</span>
+            <span>Fait avec ❤️ pour l&apos;Afrique</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── SECTION TALENTS ──────────────────────────────────────────── */}
       <section
         ref={talentsRef}
         className="px-4 py-16 bg-[#f4f7fb]"
@@ -509,63 +566,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ── FOOTER ───────────────────────────────────────────────────── */}
-      <footer style={{ backgroundColor: DARK_NAVY }}>
-        <div className="max-w-6xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-4 gap-10 border-t border-white/10">
-          <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
-            <img src="/logo.png" alt="TalentProof" style={{ height: "40px", width: "auto" }} />
-            <p className="text-white/70 text-sm leading-relaxed">
-              La plateforme qui prouve que la compétence mérite d&apos;être vue.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Annuaires</p>
-            {[
-              { label: "Talents",     href: "/annuaire" },
-              { label: "Entreprises", href: "/annuaire-entreprises" },
-              { label: "Centres",     href: "/annuaire-centres" },
-              { label: "Offres",      href: "/annuaire-offres" },
-            ].map(({ label, href }) => (
-              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
-                {label}
-              </Link>
-            ))}
-          </div>
-          <div className="flex flex-col gap-3">
-            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Je suis…</p>
-            {[
-              { label: "Un Talent",             href: "/inscription?role=talent" },
-              { label: "Un Recruteur",           href: "/inscription?role=recruteur" },
-              { label: "Une Entreprise",         href: "/inscription?role=entreprise" },
-              { label: "Un Centre de formation", href: "/inscription?role=centre" },
-            ].map(({ label, href }) => (
-              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
-                {label}
-              </Link>
-            ))}
-          </div>
-          <div className="flex flex-col gap-3">
-            <p className="text-white text-sm font-bold uppercase tracking-wider mb-1">Informations</p>
-            {[
-              { label: "À propos",                 href: "/a-propos" },
-              { label: "Contact",                  href: "/contact" },
-              { label: "Conditions d'utilisation", href: "/conditions-utilisation" },
-              { label: "Confidentialité",           href: "/confidentialite" },
-            ].map(({ label, href }) => (
-              <Link key={label} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
-                {label}
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div className="border-t border-white/10">
-          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
-            <span>© 2025 TalentProof Africa. Tous droits réservés.</span>
-            <span>Fait avec ❤️ pour l&apos;Afrique</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
