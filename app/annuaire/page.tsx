@@ -23,7 +23,6 @@ interface Talent {
   preuve_url: string | null;
   has_video: boolean | null;
   has_photo: boolean | null;
-  updated_at: string | null;
   utilisateurs: {
     prenom: string;
     nom: string;
@@ -439,7 +438,6 @@ export default function AnnuairePage() {
           preuve_url,
           has_video,
           has_photo,
-          updated_at,
           utilisateurs (
             prenom,
             nom,
@@ -520,11 +518,7 @@ export default function AnnuairePage() {
     } else if (triPar === "score") {
       result = [...result].sort((a, b) => computeScoreTalent(b) - computeScoreTalent(a));
     } else if (triPar === "actif") {
-      result = [...result].sort((a, b) => {
-        const aTime = a.updated_at ? new Date(a.updated_at).getTime() : 0;
-        const bTime = b.updated_at ? new Date(b.updated_at).getTime() : 0;
-        return bTime - aTime;
-      });
+      result = [...result].sort((a, b) => b.id.localeCompare(a.id));
     }
     // triPar === "recents": already ordered by id desc from Supabase
 
