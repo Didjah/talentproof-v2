@@ -408,7 +408,7 @@ export default function HomePage() {
 
       {/* ── FOOTER ───────────────────────────────────────────────────── */}
       <footer style={{ backgroundColor: DARK_NAVY }}>
-        <div className="max-w-6xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-5 gap-10 border-t border-white/10">
+        <div className="max-w-6xl mx-auto px-4 py-14 grid grid-cols-2 md:grid-cols-4 gap-10 border-t border-white/10">
           <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
             <img src="/logo.png" alt="TalentProof" style={{ height: "40px", width: "auto" }} />
             <p className="text-white/70 text-sm leading-relaxed">
@@ -454,32 +454,6 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
-          <div className="flex flex-col items-start gap-3">
-            <p className="font-semibold" style={{ color: GOLD, fontSize: "13px" }}>
-              Talents disponibles
-            </p>
-            <div className="flex flex-col gap-2">
-              {[0, 0.2, 0.4].map((delay, i) => (
-                <div
-                  key={i}
-                  style={{ animation: `tp-up-bounce 1.4s ease-in-out ${delay}s infinite` }}
-                >
-                  <div
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRight: `2.5px solid ${GOLD}`,
-                      borderBottom: `2.5px solid ${GOLD}`,
-                      transform: "rotate(-135deg)",
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "11px" }}>
-              Balayez vers le bas
-            </p>
-          </div>
         </div>
         <div className="border-t border-white/10">
           <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
@@ -488,6 +462,34 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* ── SCROLL INDICATOR ─────────────────────────────────────────── */}
+      <div
+        className="flex flex-col items-center gap-2 py-6"
+        style={{ backgroundColor: DARK_NAVY }}
+      >
+        <div className="flex flex-col items-center gap-1.5">
+          {[0, 0.2, 0.4].map((delay, i) => (
+            <div
+              key={i}
+              style={{ animation: `tp-up-bounce 1.4s ease-in-out ${delay}s infinite` }}
+            >
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRight: `2.5px solid ${GOLD}`,
+                  borderBottom: `2.5px solid ${GOLD}`,
+                  transform: "rotate(-135deg)",
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "12px" }}>
+          Balayez vers le bas pour voir les talents
+        </p>
+      </div>
 
       {/* ── SECTION TALENTS ──────────────────────────────────────────── */}
       <section
