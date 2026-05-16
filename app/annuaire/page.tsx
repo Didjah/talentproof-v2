@@ -23,6 +23,7 @@ interface Talent {
   preuve_url: string | null;
   has_video: boolean | null;
   has_photo: boolean | null;
+  updated_at: string | null;
   utilisateurs: {
     prenom: string;
     nom: string;
@@ -236,6 +237,12 @@ function FilterPanel({
   total,
   verifieOnly,
   onToggleVerifie,
+  disponibleMaintenant,
+  onDisponibleMaintenant,
+  badgeFilter,
+  onBadgeFilter,
+  triPar,
+  onTriPar,
 }: {
   filters: Filters;
   onChange: (key: keyof Filters, val: string) => void;
@@ -244,6 +251,12 @@ function FilterPanel({
   total: number;
   verifieOnly: boolean;
   onToggleVerifie: (v: boolean) => void;
+  disponibleMaintenant: boolean;
+  onDisponibleMaintenant: (v: boolean) => void;
+  badgeFilter: string;
+  onBadgeFilter: (v: string) => void;
+  triPar: string;
+  onTriPar: (v: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -309,7 +322,7 @@ function FilterPanel({
 
       {/* Niveau d'expérience */}
       <div>
-        <label className="text-xs font-semibold text-gray-600 mb-1 block">Niveau d'expérience</label>
+        <label className="text-xs font-semibold text-gray-600 mb-1 block">Niveau d&apos;expérience</label>
         <select className={selectCls} value={filters.niveau} onChange={(e) => onChange("niveau", e.target.value)}>
           <option value="">Tous les niveaux</option>
           {NIVEAUX.map((n) => <option key={n}>{n}</option>)}
@@ -328,6 +341,42 @@ function FilterPanel({
           ✓ Profils vérifiés seulement
         </span>
       </label>
+
+      {/* Disponible maintenant */}
+      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={disponibleMaintenant}
+          onChange={(e) => onDisponibleMaintenant(e.target.checked)}
+          className="w-4 h-4 rounded accent-[#C9A84C]"
+        />
+        <span className="text-sm font-semibold" style={{ color: "#1B3A6B" }}>
+          ✅ Disponible maintenant
+        </span>
+      </label>
+
+      <div className="border-t border-gray-100 pt-4 flex flex-col gap-4">
+        {/* Trier par badge */}
+        <div>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">Trier par badge</label>
+          <select className={selectCls} value={badgeFilter} onChange={(e) => onBadgeFilter(e.target.value)}>
+            <option value="">Tous les badges</option>
+            <option value="gold">🥇 Gold en premier</option>
+            <option value="silver">🥈 Silver en premier</option>
+            <option value="bronze">🥉 Bronze uniquement</option>
+          </select>
+        </div>
+
+        {/* Trier par */}
+        <div>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">Trier par</label>
+          <select className={selectCls} value={triPar} onChange={(e) => onTriPar(e.target.value)}>
+            <option value="recents">Plus récents en premier</option>
+            <option value="actif">Récemment actif</option>
+            <option value="score">Score décroissant</option>
+          </select>
+        </div>
+      </div>
     </div>
   );
 }
@@ -354,6 +403,9 @@ export default function AnnuairePage() {
   const [filters, setFilters] = useState<Filters>(FILTERS_INIT);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [verifieOnly, setVerifieOnly] = useState(false);
+  const [disponibleMaintenant, setDisponibleMaintenant] = useState(false);
+  const [badgeFilter, setBadgeFilter] = useState("");
+  const [triPar, setTriPar] = useState("recents");
 
   // Pre-fill filters from URL params (e.g. from espace-recruteur redirect)
   useEffect(() => {
@@ -387,6 +439,7 @@ export default function AnnuairePage() {
           preuve_url,
           has_video,
           has_photo,
+          updated_at,
           utilisateurs (
             prenom,
             nom,
@@ -412,8 +465,17 @@ export default function AnnuairePage() {
     setFilters((f) => ({ ...f, [key]: val }));
   }
 
+  function resetAll() {
+    setFilters(FILTERS_INIT);
+    setVerifieOnly(false);
+    setDisponibleMaintenant(false);
+    setBadgeFilter("");
+    setTriPar("recents");
+  }
+
   const filtered = useMemo(() => {
-    return talents.filter((t) => {
+    // 1. Filter
+    let result = talents.filter((t) => {
       const prenom = t.utilisateurs?.prenom ?? "";
       const nom = t.utilisateurs?.nom ?? "";
       const nomComplet = normalise(`${prenom} ${nom}`);
@@ -430,11 +492,67 @@ export default function AnnuairePage() {
       if (filters.disponibilite && t.disponibilite !== filters.disponibilite) return false;
       if (filters.niveau && t.niveau_experience !== filters.niveau) return false;
       if (verifieOnly && !t.utilisateurs?.verifie) return false;
+      if (disponibleMaintenant && t.disponibilite !== "immédiate") return false;
+      if (badgeFilter === "bronze" && computeScoreTalent(t) >= 41) return false;
+
       return true;
     });
-  }, [talents, filters, verifieOnly]);
 
-  const hasActiveFilter = Object.values(filters).some(Boolean) || verifieOnly;
+    // 2. Sort
+    if (badgeFilter === "gold") {
+      result = [...result].sort((a, b) => {
+        const sa = computeScoreTalent(a);
+        const sb = computeScoreTalent(b);
+        const aGroup = sa >= 71 ? 0 : 1;
+        const bGroup = sb >= 71 ? 0 : 1;
+        if (aGroup !== bGroup) return aGroup - bGroup;
+        return sb - sa;
+      });
+    } else if (badgeFilter === "silver") {
+      result = [...result].sort((a, b) => {
+        const sa = computeScoreTalent(a);
+        const sb = computeScoreTalent(b);
+        const aGroup = sa >= 41 && sa < 71 ? 0 : 1;
+        const bGroup = sb >= 41 && sb < 71 ? 0 : 1;
+        if (aGroup !== bGroup) return aGroup - bGroup;
+        return sb - sa;
+      });
+    } else if (triPar === "score") {
+      result = [...result].sort((a, b) => computeScoreTalent(b) - computeScoreTalent(a));
+    } else if (triPar === "actif") {
+      result = [...result].sort((a, b) => {
+        const aTime = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+        const bTime = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+        return bTime - aTime;
+      });
+    }
+    // triPar === "recents": already ordered by id desc from Supabase
+
+    return result;
+  }, [talents, filters, verifieOnly, disponibleMaintenant, badgeFilter, triPar]);
+
+  const hasActiveFilter =
+    Object.values(filters).some(Boolean) ||
+    verifieOnly ||
+    disponibleMaintenant ||
+    badgeFilter !== "" ||
+    triPar !== "recents";
+
+  const filterPanelProps = {
+    filters,
+    onChange: setFilter,
+    onReset: resetAll,
+    count: filtered.length,
+    total: talents.length,
+    verifieOnly,
+    onToggleVerifie: setVerifieOnly,
+    disponibleMaintenant,
+    onDisponibleMaintenant: setDisponibleMaintenant,
+    badgeFilter,
+    onBadgeFilter: setBadgeFilter,
+    triPar,
+    onTriPar: setTriPar,
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f4f7fb] font-sans">
@@ -463,7 +581,7 @@ export default function AnnuairePage() {
             Annuaire des talents
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Trouvez le profil qu'il vous faut parmi nos talents vérifiés
+            Trouvez le profil qu&apos;il vous faut parmi nos talents vérifiés
           </p>
         </div>
       </div>
@@ -475,15 +593,7 @@ export default function AnnuairePage() {
           <aside className="hidden lg:block w-64 shrink-0">
             <div className="sticky top-24 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h2 className="text-sm font-bold text-gray-800 mb-4">Filtrer</h2>
-              <FilterPanel
-                filters={filters}
-                onChange={setFilter}
-                onReset={() => { setFilters(FILTERS_INIT); setVerifieOnly(false); }}
-                count={filtered.length}
-                total={talents.length}
-                verifieOnly={verifieOnly}
-                onToggleVerifie={setVerifieOnly}
-              />
+              <FilterPanel {...filterPanelProps} />
             </div>
           </aside>
 
@@ -500,7 +610,13 @@ export default function AnnuairePage() {
                   <span>🔽</span> Filtrer les résultats
                   {hasActiveFilter && (
                     <span className="rounded-full bg-[#1B3A6B] text-white text-xs px-2 py-0.5">
-                      {Object.values(filters).filter(Boolean).length}
+                      {[
+                        ...Object.values(filters).filter(Boolean),
+                        verifieOnly ? "v" : null,
+                        disponibleMaintenant ? "d" : null,
+                        badgeFilter || null,
+                        triPar !== "recents" ? triPar : null,
+                      ].filter(Boolean).length}
                     </span>
                   )}
                 </span>
@@ -508,15 +624,7 @@ export default function AnnuairePage() {
               </button>
               {filtersOpen && (
                 <div className="mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                  <FilterPanel
-                    filters={filters}
-                    onChange={setFilter}
-                    onReset={() => setFilters(FILTERS_INIT)}
-                    count={filtered.length}
-                    total={talents.length}
-                    verifieOnly={verifieOnly}
-                    onToggleVerifie={setVerifieOnly}
-                  />
+                  <FilterPanel {...filterPanelProps} />
                 </div>
               )}
             </div>
@@ -536,9 +644,9 @@ export default function AnnuairePage() {
               <div className="rounded-2xl bg-white border border-gray-100 shadow-sm px-6 py-16 text-center">
                 <p className="text-4xl mb-3">🔍</p>
                 <p className="text-gray-600 font-semibold mb-1">Aucun talent trouvé</p>
-                <p className="text-sm text-gray-400 mb-4">Essayez d'élargir vos critères de recherche</p>
+                <p className="text-sm text-gray-400 mb-4">Essayez d&apos;élargir vos critères de recherche</p>
                 {hasActiveFilter && (
-                  <button onClick={() => setFilters(FILTERS_INIT)}
+                  <button onClick={resetAll}
                     className="text-sm font-semibold text-[#1B3A6B] hover:underline">
                     Réinitialiser les filtres
                   </button>
@@ -561,7 +669,7 @@ export default function AnnuairePage() {
       </main>
 
       <footer className="mt-8 py-6 text-center text-sm text-white" style={{ backgroundColor: "#1B3A6B" }}>
-        TalentProof — la preuve que la compétence mérite d'être vue.
+        TalentProof — la preuve que la compétence mérite d&apos;être vue.
       </footer>
     </div>
   );
