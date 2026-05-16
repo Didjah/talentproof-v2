@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/src/lib/supabase";
+import GuideIntelligent from "@/components/GuideIntelligent";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -199,6 +200,19 @@ function ProgressBar({ step }: { step: number }) {
 
 // ─── Formulaire principal ─────────────────────────────────────────────────────
 
+function computeFormScore(form: FormData): number {
+  let score = 0;
+  if (form.avatar)                                                          score += 15;
+  if (form.video)                                                           score += 20;
+  if (form.bio?.trim())                                                     score += 10;
+  if (form.competences_principales?.trim())                                 score += 10;
+  if (form.cv || form.diplome)                                              score += 15;
+  if (form.preuve)                                                          score += 15;
+  if (form.whatsapp?.trim())                                                score += 5;
+  if (form.metier_principal?.trim() && form.niveau_experience?.trim())      score += 10;
+  return score;
+}
+
 export function TalentForm() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -206,6 +220,7 @@ export function TalentForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState("");
+  const [guideOpen, setGuideOpen] = useState(false);
 
   function set<K extends keyof FormData>(key: K, value: FormData[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -359,13 +374,34 @@ export function TalentForm() {
   // ─── Rendu des étapes ─────────────────────────────────────────────────────
 
   return (
-    <div>
+    <div className="relative">
       <h1 className="text-2xl sm:text-3xl font-bold text-center mb-1" style={{ color: "#1B3A6B" }}>
         Créer mon profil Talent
       </h1>
       <p className="text-center text-gray-500 text-sm mb-8">
         Étape {step + 1} sur {ETAPES.length} — {ETAPES[step]}
       </p>
+
+      {/* Bouton Guide flottant (dès l'étape 2 où le métier est disponible) */}
+      {step >= 1 && (
+        <button
+          type="button"
+          onClick={() => setGuideOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_24px_rgba(201,168,76,0.45)]"
+          style={{ backgroundColor: "#1B3A6B" }}
+        >
+          <span className="text-lg">💡</span>
+          <span className="text-sm font-bold">Guide</span>
+        </button>
+      )}
+
+      <GuideIntelligent
+        metier={form.metier_principal}
+        etape={step}
+        score={computeFormScore(form)}
+        isOpen={guideOpen}
+        onClose={() => setGuideOpen(false)}
+      />
 
       <ProgressBar step={step} />
 

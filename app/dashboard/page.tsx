@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/src/lib/supabase";
+import BoutonGuide, { ManquantItem } from "@/components/BoutonGuide";
 
 const NAVY = "#1B3A6B";
 const GOLD = "#C9A84C";
@@ -197,6 +198,17 @@ export default function DashboardPage() {
     { condition: !profil.competences_principales?.trim(),icon: "🔧", label: "Ajouter mes compétences",   href: "/modifier-profil#competences" },
   ].filter((a) => a.condition);
 
+  const manquants: ManquantItem[] = [
+    { condition: !profil.avatar_url,                                             icon: "📸", label: "Ajouter une photo de profil",      points: 15, href: "/modifier-profil#photo" },
+    { condition: !profil.video_presentation_url,                                  icon: "🎬", label: "Ajouter une vidéo de présentation", points: 20, href: "/modifier-profil#video" },
+    { condition: !profil.bio?.trim(),                                             icon: "✍️",  label: "Rédiger ma bio",                    points: 10, href: "/modifier-profil#bio" },
+    { condition: !profil.competences_principales?.trim(),                         icon: "🔧", label: "Lister mes compétences",            points: 10, href: "/modifier-profil#competences" },
+    { condition: !profil.cv_url && !profil.diplome_url,                          icon: "📄", label: "Uploader un CV ou diplôme",         points: 15, href: "/modifier-profil#documents" },
+    { condition: !profil.preuve_url,                                              icon: "🖼️", label: "Ajouter une photo de réalisation",  points: 15, href: "/modifier-profil#preuve" },
+    { condition: !profil.whatsapp?.trim(),                                        icon: "💬", label: "Ajouter mon WhatsApp",              points: 5,  href: "/modifier-profil#contact" },
+    { condition: !profil.metier_principal?.trim() || !profil.niveau_experience?.trim(), icon: "💼", label: "Préciser métier et niveau",  points: 10, href: "/modifier-profil#metier" },
+  ].filter((m) => m.condition).map(({ icon, label, points, href }) => ({ icon, label, points, href }));
+
   return (
     <div className="min-h-screen flex flex-col font-sans text-gray-900" style={{ backgroundColor: "#EEF2F9" }}>
       {/* Header */}
@@ -369,6 +381,8 @@ export default function DashboardPage() {
           )}
         </section>
       </main>
+
+      <BoutonGuide score={score} manquants={manquants} />
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-white/60 mt-4" style={{ backgroundColor: NAVY }}>
