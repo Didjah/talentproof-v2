@@ -308,6 +308,18 @@ export default function HomePage() {
             </Link>
           </div>
 
+          {/* Lien connexion */}
+          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)" }}>
+            Déjà un compte ?{" "}
+            <Link
+              href="/connexion"
+              className="underline transition-opacity hover:opacity-80"
+              style={{ color: GOLD }}
+            >
+              Se connecter →
+            </Link>
+          </p>
+
           {/* Stats */}
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 mt-2">
             {STAT_ITEMS.map(({ value, label }) => (
