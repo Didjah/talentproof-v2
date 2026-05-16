@@ -17,7 +17,6 @@ interface Entreprise {
   secteur: string | null;
   taille: string | null;
   description: string | null;
-  whatsapp: string | null;
   verifie: boolean | null;
   ville: string | null;
   pays: string | null;
@@ -278,7 +277,7 @@ export default function AnnuaireEntreprisesPage() {
       const { data, error: err } = await supabase
         .from("entreprises")
         .select(
-          "id, utilisateur_id, nom_entreprise, logo_url, secteur, taille, description, whatsapp, verifie, ville, pays"
+          "id, utilisateur_id, nom_entreprise, logo_url, secteur, taille, description, verifie, ville, pays"
         )
         .order("id", { ascending: false });
 
