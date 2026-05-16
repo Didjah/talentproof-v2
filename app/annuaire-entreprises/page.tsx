@@ -18,7 +18,6 @@ interface Entreprise {
   taille: string | null;
   description: string | null;
   verifie: boolean | null;
-  utilisateurs: { ville: string | null; pays: string | null } | null;
 }
 
 // ─── Données statiques ────────────────────────────────────────────────────────
@@ -27,12 +26,6 @@ const SECTEURS = [
   "BTP", "Santé", "Tech / Informatique", "Transport / Logistique",
   "Agriculture", "Commerce / Vente", "Restauration / Hôtellerie",
   "Finance / Banque", "Éducation / Formation", "Autre",
-];
-
-const PAYS = [
-  "Guinée", "Sénégal", "Mali", "Côte d'Ivoire", "Burkina Faso",
-  "Cameroun", "Togo", "Bénin", "Niger", "Mauritanie",
-  "France", "Belgique", "Canada", "Maroc", "Autre",
 ];
 
 // ─── Utilitaires ──────────────────────────────────────────────────────────────
@@ -54,8 +47,6 @@ function EntrepriseCard({
   e: Entreprise;
   recrute: boolean;
 }) {
-  const lieu = [e.utilisateurs?.ville, e.utilisateurs?.pays].filter(Boolean).join(", ");
-
   return (
     <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
       <div className="h-3 w-full" style={{ backgroundColor: NAVY }} />
@@ -104,13 +95,6 @@ function EntrepriseCard({
           </span>
         )}
 
-        {/* Localisation */}
-        {lieu && (
-          <p className="text-xs text-gray-500 flex items-center gap-1">
-            <span>📍</span> {lieu}
-          </p>
-        )}
-
         {/* Taille */}
         {e.taille && (
           <p className="text-xs text-gray-500">
@@ -149,10 +133,9 @@ const selectCls =
 interface Filters {
   texte: string;
   secteur: string;
-  pays: string;
 }
 
-const FILTERS_INIT: Filters = { texte: "", secteur: "", pays: "" };
+const FILTERS_INIT: Filters = { texte: "", secteur: "" };
 
 function FilterPanel({
   filters,
@@ -208,15 +191,6 @@ function FilterPanel({
         <select className={selectCls} value={filters.secteur} onChange={(e) => onChange("secteur", e.target.value)}>
           <option value="">Tous les secteurs</option>
           {SECTEURS.map((s) => <option key={s}>{s}</option>)}
-        </select>
-      </div>
-
-      {/* Pays */}
-      <div>
-        <label className="text-xs font-semibold text-gray-600 mb-1 block">Pays</label>
-        <select className={selectCls} value={filters.pays} onChange={(e) => onChange("pays", e.target.value)}>
-          <option value="">Tous les pays</option>
-          {PAYS.map((p) => <option key={p}>{p}</option>)}
         </select>
       </div>
 
@@ -276,7 +250,7 @@ export default function AnnuaireEntreprisesPage() {
       const { data, error: err } = await supabase
         .from("entreprises")
         .select(
-          "id, utilisateur_id, nom_entreprise, logo_url, secteur, taille, description, verifie, utilisateurs(ville, pays)"
+          "id, utilisateur_id, nom_entreprise, logo_url, secteur, taille, description, verifie"
         )
         .order("id", { ascending: false });
 
@@ -326,7 +300,6 @@ export default function AnnuaireEntreprisesPage() {
         if (!haystack.includes(q)) return false;
       }
       if (filters.secteur && e.secteur !== filters.secteur) return false;
-      if (filters.pays && e.utilisateurs?.pays !== filters.pays) return false;
       if (verifieOnly && !e.verifie) return false;
       if (recruteOnly && !recruteIds.has(e.utilisateur_id)) return false;
       return true;
