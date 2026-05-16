@@ -18,8 +18,7 @@ interface Entreprise {
   taille: string | null;
   description: string | null;
   verifie: boolean | null;
-  ville: string | null;
-  pays: string | null;
+  utilisateurs: { ville: string | null; pays: string | null } | null;
 }
 
 // ─── Données statiques ────────────────────────────────────────────────────────
@@ -55,7 +54,7 @@ function EntrepriseCard({
   e: Entreprise;
   recrute: boolean;
 }) {
-  const lieu = [e.ville, e.pays].filter(Boolean).join(", ");
+  const lieu = [e.utilisateurs?.ville, e.utilisateurs?.pays].filter(Boolean).join(", ");
 
   return (
     <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
@@ -277,7 +276,7 @@ export default function AnnuaireEntreprisesPage() {
       const { data, error: err } = await supabase
         .from("entreprises")
         .select(
-          "id, utilisateur_id, nom_entreprise, logo_url, secteur, taille, description, verifie, ville, pays"
+          "id, utilisateur_id, nom_entreprise, logo_url, secteur, taille, description, verifie, utilisateurs(ville, pays)"
         )
         .order("id", { ascending: false });
 
@@ -327,7 +326,7 @@ export default function AnnuaireEntreprisesPage() {
         if (!haystack.includes(q)) return false;
       }
       if (filters.secteur && e.secteur !== filters.secteur) return false;
-      if (filters.pays && e.pays !== filters.pays) return false;
+      if (filters.pays && e.utilisateurs?.pays !== filters.pays) return false;
       if (verifieOnly && !e.verifie) return false;
       if (recruteOnly && !recruteIds.has(e.utilisateur_id)) return false;
       return true;
