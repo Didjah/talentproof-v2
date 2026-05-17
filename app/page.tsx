@@ -209,6 +209,33 @@ export default function HomePage() {
     };
   }, [talentsVisible]);
 
+  // Referme le drawer au scroll vers le haut quand l'indicateur est visible
+  useEffect(() => {
+    if (!talentsVisible) return;
+
+    const close = () => {
+      if (indicatorVisibleRef.current) {
+        setTalentsVisible(false);
+        indicatorRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    const handleWheel = (e: WheelEvent) => { if (e.deltaY < 0) close(); };
+
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
+    const handleTouchMove  = (e: TouchEvent) => { if (touchStartY - e.touches[0].clientY < -5) close(); };
+
+    window.addEventListener("wheel",      handleWheel,      { passive: true });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove",  handleTouchMove,  { passive: true });
+    return () => {
+      window.removeEventListener("wheel",      handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove",  handleTouchMove);
+    };
+  }, [talentsVisible]);
+
   useEffect(() => {
     async function load() {
       const [talentsRes, statsRes] = await Promise.all([
