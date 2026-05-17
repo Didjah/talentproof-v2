@@ -514,14 +514,29 @@ export default function HomePage() {
 
       {/* ── SECTION TALENTS ──────────────────────────────────────────── */}
       <section
-        className="px-4 py-16 bg-[#f4f7fb]"
+        className="bg-[#f4f7fb]"
         style={{
-          opacity:    talentsVisible ? 1 : 0,
-          height:     talentsVisible ? "auto" : 0,
-          overflow:   "hidden",
-          transition: "opacity 0.6s ease",
+          height: talentsVisible ? "auto" : 0,
+          overflow: "hidden",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
         }}
       >
+        {/* Wrapper animé — slide-up + fadeIn */}
+        <div
+          className="px-4 pb-16"
+          style={{
+            opacity:    talentsVisible ? 1 : 0,
+            transform:  talentsVisible ? "translateY(0)" : "translateY(100px)",
+            transition: "transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s ease",
+            willChange: "transform, opacity",
+          }}
+        >
+          {/* Poignée tiroir */}
+          <div className="flex justify-center pt-3 mb-8">
+            <div style={{ width: 40, height: 5, borderRadius: 9999, backgroundColor: "#d1d5db" }} />
+          </div>
+
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
@@ -583,6 +598,7 @@ export default function HomePage() {
               Voir tous les talents →
             </Link>
           </div>
+        </div>
         </div>
       </section>
     </div>
