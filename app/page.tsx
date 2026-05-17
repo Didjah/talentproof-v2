@@ -161,7 +161,8 @@ function TalentCard({ t }: { t: Talent }) {
 
 export default function HomePage() {
   const router = useRouter();
-  const talentsRef = useRef<HTMLElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const indicatorVisibleRef = useRef(false);
   const [talentsVisible, setTalentsVisible] = useState(false);
 
   const [talents, setTalents] = useState<Talent[]>([]);
@@ -172,22 +173,41 @@ export default function HomePage() {
   const [searchPays,   setSearchPays]   = useState("");
   const [filtreTab, setFiltreTab] = useState<"tous" | "disponibles" | "gold">("tous");
 
-  // IntersectionObserver → fadeIn section talents
+  // IntersectionObserver sur l'indicateur
   useEffect(() => {
-    const el = talentsRef.current;
+    const el = indicatorRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTalentsVisible(true);
-          obs.disconnect();
-        }
-      },
-      { threshold: 0.1 },
+      ([entry]) => { indicatorVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.5 },
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
+  // Révèle les talents sur scroll actif (wheel ↓ ou touchmove ↓) quand l'indicateur est visible
+  useEffect(() => {
+    if (talentsVisible) return;
+
+    const reveal = () => {
+      if (indicatorVisibleRef.current) setTalentsVisible(true);
+    };
+
+    const handleWheel = (e: WheelEvent) => { if (e.deltaY > 0) reveal(); };
+
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
+    const handleTouchMove  = (e: TouchEvent) => { if (touchStartY - e.touches[0].clientY > 5) reveal(); };
+
+    window.addEventListener("wheel",      handleWheel,      { passive: true });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove",  handleTouchMove,  { passive: true });
+    return () => {
+      window.removeEventListener("wheel",      handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove",  handleTouchMove);
+    };
+  }, [talentsVisible]);
 
   useEffect(() => {
     async function load() {
@@ -465,6 +485,7 @@ export default function HomePage() {
 
       {/* ── SCROLL INDICATOR ─────────────────────────────────────────── */}
       <div
+        ref={indicatorRef}
         className="flex flex-col items-center gap-2 py-6"
         style={{ backgroundColor: DARK_NAVY }}
       >
@@ -493,12 +514,12 @@ export default function HomePage() {
 
       {/* ── SECTION TALENTS ──────────────────────────────────────────── */}
       <section
-        ref={talentsRef}
         className="px-4 py-16 bg-[#f4f7fb]"
         style={{
           opacity:    talentsVisible ? 1 : 0,
-          transform:  talentsVisible ? "translateY(0)" : "translateY(30px)",
-          transition: "opacity 0.7s ease, transform 0.7s ease",
+          height:     talentsVisible ? "auto" : 0,
+          overflow:   "hidden",
+          transition: "opacity 0.6s ease",
         }}
       >
         <div className="max-w-6xl mx-auto">
