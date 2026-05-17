@@ -179,7 +179,7 @@ export default function HomePage() {
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => { indicatorVisibleRef.current = entry.isIntersecting; },
-      { threshold: 0.5 },
+      { threshold: 0 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -189,9 +189,7 @@ export default function HomePage() {
   useEffect(() => {
     if (talentsVisible) return;
 
-    const reveal = () => {
-      if (indicatorVisibleRef.current) setTalentsVisible(true);
-    };
+    const reveal = () => { setTalentsVisible(true); };
 
     const handleWheel = (e: WheelEvent) => { if (e.deltaY > 0) reveal(); };
 
