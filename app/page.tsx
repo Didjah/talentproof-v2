@@ -521,7 +521,7 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto px-6 w-full">
+            <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-white h-48 animate-pulse border border-gray-100" />
               ))}
@@ -531,7 +531,7 @@ export default function HomePage() {
               <p className="text-gray-400 text-sm">Aucun talent dans cette catégorie pour l&apos;instant.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto px-6 w-full">
+            <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-4">
               {talentsFiltres.map((t) => (
                 <TalentCardMedia
                   key={t.id}
