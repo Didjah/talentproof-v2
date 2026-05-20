@@ -60,53 +60,11 @@ export default function TalentCardMedia({
   return (
     <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 w-full">
 
-      {/* ── MÉDIA PRINCIPAL (vidéo ou photo) — grand format ── */}
-      {videoSrc ? (
-        <div className="relative bg-black w-full" style={{ aspectRatio: "16/9" }}>
-          <span className="absolute top-3 left-3 z-10 bg-purple-600/85 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
-            ▶ Preuve vidéo
-          </span>
-          {badge && (
-            <span className={`absolute top-3 right-3 z-10 text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-sm ${badge.cls}`}>
-              {badge.label}
-            </span>
-          )}
-          <video
-            ref={videoRef}
-            src={videoSrc}
-            muted
-            loop
-            playsInline
-            controls
-            className="w-full h-full object-contain"
-          />
-        </div>
-      ) : photoSrc ? (
-        <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
-          <span className="absolute top-3 left-3 z-10 bg-emerald-600/85 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
-            📷 Réalisation
-          </span>
-          {badge && (
-            <span className={`absolute top-3 right-3 z-10 text-xs font-bold px-3 py-1 rounded-full border ${badge.cls}`}>
-              {badge.label}
-            </span>
-          )}
-          <img src={photoSrc} alt="Réalisation" className="w-full h-full object-cover" />
-        </div>
-      ) : (
-        <div className="w-full bg-gradient-to-br from-[#1B3A6B] to-[#0D1F3C] flex items-center justify-center" style={{ aspectRatio: "16/9" }}>
-          {avatar_url
-            ? <img src={avatar_url} alt="" className="h-32 w-32 rounded-full object-cover border-4 border-[#C9A84C]" />
-            : <div className="h-24 w-24 rounded-full bg-[#C9A84C] flex items-center justify-center text-white text-3xl font-bold">{prenom?.[0]}{nom?.[0]}</div>
-          }
-        </div>
-      )}
-
-      {/* ── IDENTITÉ + DOMAINE ── */}
-      <div className="px-5 pt-4 pb-2">
+      {/* ── 1. EN-TÊTE identité ── */}
+      <div className="px-5 pt-4 pb-3">
         <div className="flex items-start gap-3">
           {avatar_url && (
-            <img src={avatar_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#C9A84C] flex-shrink-0 -mt-8 ring-2 ring-white" />
+            <img src={avatar_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#C9A84C] flex-shrink-0 ring-2 ring-white" />
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -142,16 +100,57 @@ export default function TalentCardMedia({
             )}
           </div>
         )}
-
-        {videoSrc && photoSrc && (
-          <div className="mt-3 rounded-xl overflow-hidden relative">
-            <span className="absolute top-2 left-2 z-10 bg-emerald-600/85 text-white text-xs px-2 py-0.5 rounded-full">📷 Réalisation</span>
-            <img src={photoSrc} alt="Réalisation" className="w-full max-h-48 object-cover" />
-          </div>
-        )}
       </div>
 
-      {/* ── BOUTONS CONTACT ── */}
+      {/* ── 2. VIDÉO pleine largeur (si disponible) ── */}
+      {videoSrc && (
+        <div className="relative bg-black w-full" style={{ aspectRatio: "16/9" }}>
+          <span className="absolute top-3 left-3 z-10 bg-purple-600/85 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
+            ▶ Preuve vidéo
+          </span>
+          {badge && (
+            <span className={`absolute top-3 right-3 z-10 text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-sm ${badge.cls}`}>
+              {badge.label}
+            </span>
+          )}
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            loop
+            playsInline
+            controls
+            className="w-full h-full object-contain"
+          />
+        </div>
+      )}
+
+      {/* ── 3. PHOTO réalisation pleine largeur (si disponible) ── */}
+      {photoSrc && (
+        <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+          <span className="absolute top-3 left-3 z-10 bg-emerald-600/85 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
+            📷 Réalisation
+          </span>
+          {badge && !videoSrc && (
+            <span className={`absolute top-3 right-3 z-10 text-xs font-bold px-3 py-1 rounded-full border ${badge.cls}`}>
+              {badge.label}
+            </span>
+          )}
+          <img src={photoSrc} alt="Réalisation" className="w-full h-full object-cover" />
+        </div>
+      )}
+
+      {/* ── PLACEHOLDER si aucun média ── */}
+      {!videoSrc && !photoSrc && (
+        <div className="w-full bg-gradient-to-br from-[#1B3A6B] to-[#0D1F3C] flex items-center justify-center" style={{ aspectRatio: "16/9" }}>
+          {avatar_url
+            ? <img src={avatar_url} alt="" className="h-32 w-32 rounded-full object-cover border-4 border-[#C9A84C]" />
+            : <div className="h-24 w-24 rounded-full bg-[#C9A84C] flex items-center justify-center text-white text-3xl font-bold">{prenom?.[0]}{nom?.[0]}</div>
+          }
+        </div>
+      )}
+
+      {/* ── 4. BOUTONS CONTACT ── */}
       <div className="px-5 py-4 border-t border-gray-100 grid grid-cols-3 gap-2">
         {telephone && (
           <a href={`https://wa.me/${telephone.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
