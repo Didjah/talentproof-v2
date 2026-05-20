@@ -493,12 +493,12 @@ export default function HomePage() {
           </div>
 
         <div className="w-full max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 px-4">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold" style={{ color: NAVY }}>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-center sm:text-left" style={{ color: NAVY }}>
                 Talents disponibles maintenant
               </h2>
-              <p className="text-gray-500 text-sm mt-1">
+              <p className="text-gray-500 text-sm mt-1 text-center sm:text-left">
                 Profils avec preuves visuelles — photos, vidéos, réalisations
               </p>
             </div>
