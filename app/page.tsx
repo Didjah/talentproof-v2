@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/src/lib/supabase";
@@ -103,6 +103,13 @@ export default function HomePage() {
   const touchStartYRef = useRef(0);
 
   const [talents, setTalents] = useState<Talent[]>([]);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingMoreRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const filtreTabRef = useRef<"tous" | "disponibles" | "gold">("tous");
   const [stats,   setStats]   = useState<Stats>({ talents: 0, offres: 0, pays: 15 });
   const [loading, setLoading] = useState(true);
 
@@ -164,40 +171,84 @@ export default function HomePage() {
     };
   }, []);
 
+  const BATCH = 6;
+
+  async function loadTalents(pageIndex: number, filter: "tous" | "disponibles" | "gold") {
+    if (loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+
+    let query = supabase
+      .from("talents")
+      .select("id, utilisateur_id, metier_principal, titre_profil, description_courte, competences_principales, annees_experience, niveau_experience, disponibilite, avatar_url, has_video, video_url, video_presentation_url, preuve_url, realisation_url, telephone, whatsapp, utilisateurs(prenom, nom, pays, ville, telephone)")
+      .eq("profil_public", true)
+      .order("id", { ascending: false })
+      .range(pageIndex * BATCH, (pageIndex + 1) * BATCH - 1);
+
+    if (filter === "disponibles") query = query.eq("disponibilite", "immédiate");
+    if (filter === "gold") query = query.eq("has_video", true);
+
+    const { data } = await query;
+
+    if (!data || data.length < BATCH) {
+      setHasMore(false);
+      hasMoreRef.current = false;
+    }
+    if (data && data.length > 0) setTalents((prev) => [...prev, ...(data as unknown as Talent[])]);
+
+    loadingMoreRef.current = false;
+    setLoadingMore(false);
+  }
+
+  // Stats
   useEffect(() => {
-    async function load() {
-      const [talentsRes, statsRes] = await Promise.all([
-        supabase
-          .from("talents")
-          .select("id, utilisateur_id, metier_principal, titre_profil, description_courte, competences_principales, annees_experience, niveau_experience, disponibilite, avatar_url, has_video, video_url, video_presentation_url, preuve_url, realisation_url, telephone, whatsapp, utilisateurs(prenom, nom, pays, ville, telephone)")
-          .eq("profil_public", true)
-          .order("id", { ascending: false })
-          .limit(6),
-        supabase
-          .from("talents")
-          .select("*", { count: "exact", head: true })
-          .eq("profil_public", true),
+    async function loadStats() {
+      const [talentsRes, offresRes] = await Promise.all([
+        supabase.from("talents").select("*", { count: "exact", head: true }).eq("profil_public", true),
+        supabase.from("offres_emploi").select("*", { count: "exact", head: true }).eq("statut", "ouverte"),
       ]);
-
-      if (talentsRes.data) setTalents(talentsRes.data as unknown as Talent[]);
-      if (statsRes.count != null) setStats((s) => ({ ...s, talents: statsRes.count! }));
-
-      const { count: nbOffres } = await supabase
-        .from("offres_emploi")
-        .select("*", { count: "exact", head: true })
-        .eq("statut", "ouverte");
-      if (nbOffres != null) setStats((s) => ({ ...s, offres: nbOffres }));
-
+      if (talentsRes.count != null) setStats((s) => ({ ...s, talents: talentsRes.count! }));
+      if (offresRes.count != null) setStats((s) => ({ ...s, offres: offresRes.count! }));
       setLoading(false);
     }
-    load();
+    loadStats();
   }, []);
 
-  const talentsFiltres = useMemo(() => {
-    if (filtreTab === "disponibles") return talents.filter((t) => t.disponibilite === "immédiate");
-    if (filtreTab === "gold")        return talents.filter((t) => t.has_video === true);
-    return talents;
-  }, [talents, filtreTab]);
+  // Chargement initial
+  useEffect(() => {
+    loadTalents(0, "tous");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Reset + reload quand le filtre change
+  const isFirstFiltreRender = useRef(true);
+  useEffect(() => {
+    if (isFirstFiltreRender.current) { isFirstFiltreRender.current = false; return; }
+    filtreTabRef.current = filtreTab;
+    setTalents([]);
+    setPage(0);
+    hasMoreRef.current = true;
+    setHasMore(true);
+    loadTalents(0, filtreTab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtreTab]);
+
+  // Sentinel — déclenche le chargement de la page suivante
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting && !loadingMoreRef.current) setPage((p) => p + 1); },
+      { threshold: 0.1 },
+    );
+    obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, [hasMore, loadingMore]);
+
+  // Charger la batch suivante
+  useEffect(() => {
+    if (page > 0) loadTalents(page, filtreTabRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -520,19 +571,19 @@ export default function HomePage() {
             </div>
           </div>
 
-          {loading ? (
+          {loadingMore && talents.length === 0 ? (
             <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-3 sm:px-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-white h-48 animate-pulse border border-gray-100" />
               ))}
             </div>
-          ) : talentsFiltres.length === 0 ? (
+          ) : !loadingMore && talents.length === 0 ? (
             <div className="rounded-2xl bg-white border border-gray-100 py-16 text-center">
               <p className="text-gray-400 text-sm">Aucun talent dans cette catégorie pour l&apos;instant.</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-3 sm:px-6">
-              {talentsFiltres.map((t) => (
+              {talents.map((t) => (
                 <TalentCardMedia
                   key={t.id}
                   id={t.utilisateur_id}
@@ -562,22 +613,16 @@ export default function HomePage() {
             </div>
           )}
 
-          <div className="text-center mt-10">
-            <Link
-              href="/annuaire"
-              className="inline-flex items-center gap-2 rounded-full border-2 px-8 py-3 text-sm font-bold transition-colors hover:text-white"
-              style={{ borderColor: NAVY, color: NAVY }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = NAVY;
-                (e.currentTarget as HTMLElement).style.color = "white";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
-                (e.currentTarget as HTMLElement).style.color = NAVY;
-              }}
-            >
-              Voir tous les talents →
-            </Link>
+          <div ref={sentinelRef} className="w-full flex justify-center py-6">
+            {loadingMore && (
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="w-5 h-5 border-2 border-[#1B3A6B] border-t-transparent rounded-full animate-spin" />
+                Chargement...
+              </div>
+            )}
+            {!hasMore && talents.length > 0 && (
+              <p className="text-gray-400 text-sm">Tous les talents sont affichés</p>
+            )}
           </div>
         </div>
         </div>
