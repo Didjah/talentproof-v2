@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 interface TalentCardMediaProps {
@@ -35,6 +35,7 @@ export default function TalentCardMedia({
   const videoSrc = video_presentation_url || video_url || null;
   const photoSrc = realisation_url || preuve_url || null;
   const metierLabel = metier || titre_poste || "Talent";
+  const [lightbox, setLightbox] = useState<{ type: "image" | "video"; src: string } | null>(null);
 
   const badge = score && score >= 80 ? { label: "Or 🥇", cls: "bg-yellow-100 text-yellow-700 border-yellow-300" }
               : score && score >= 50 ? { label: "Argent 🥈", cls: "bg-gray-100 text-gray-600 border-gray-300" }
@@ -58,10 +59,11 @@ export default function TalentCardMedia({
   }, [videoSrc]);
 
   return (
+    <>
     <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 w-full">
 
       {/* ── 1. EN-TÊTE identité ── */}
-      <div className="px-5 pt-4 pb-3">
+      <Link href={`/profil/${id}`} className="block hover:bg-gray-50 transition-colors rounded-t-3xl px-5 pt-4 pb-3 cursor-pointer">
         <div className="flex items-start gap-3">
           {avatar_url && (
             <img src={avatar_url} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#C9A84C] flex-shrink-0 ring-2 ring-white" />
@@ -100,11 +102,11 @@ export default function TalentCardMedia({
             )}
           </div>
         )}
-      </div>
+      </Link>
 
       {/* ── 2. VIDÉO pleine largeur (si disponible) ── */}
       {videoSrc && (
-        <div className="relative bg-black w-full aspect-video">
+        <div className="relative bg-black w-full aspect-video cursor-pointer" onClick={() => setLightbox({ type: "video", src: videoSrc! })}>
           <span className="absolute top-3 left-3 z-10 bg-purple-600/85 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
             ▶ Preuve vidéo
           </span>
@@ -133,7 +135,7 @@ export default function TalentCardMedia({
             <span className="text-xs text-gray-400 font-medium">📷 Photo de réalisation</span>
             <div className="h-px flex-1 bg-gray-100" />
           </div>
-          <div className="relative rounded-2xl overflow-hidden">
+          <div className="relative rounded-2xl overflow-hidden cursor-pointer" onClick={() => setLightbox({ type: "image", src: photoSrc! })}>
             <img src={photoSrc} alt="Réalisation" className="w-full object-cover max-h-72" />
           </div>
         </div>
@@ -171,5 +173,19 @@ export default function TalentCardMedia({
         </Link>
       </div>
     </div>
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <button className="absolute top-4 right-4 text-white text-3xl font-bold">✕</button>
+          {lightbox.type === "image" ? (
+            <img src={lightbox.src} alt="" className="max-w-full max-h-full rounded-xl object-contain" onClick={e => e.stopPropagation()} />
+          ) : (
+            <video src={lightbox.src} controls autoPlay className="max-w-full max-h-full rounded-xl" onClick={e => e.stopPropagation()} />
+          )}
+        </div>
+      )}
+    </>
   );
 }
