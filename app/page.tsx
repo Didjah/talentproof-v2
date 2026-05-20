@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/src/lib/supabase";
+import TalentCardMedia from "@/components/TalentCardMedia";
 
 const NAVY      = "#1B3A6B";
 const GOLD      = "#C9A84C";
@@ -18,6 +19,10 @@ interface Talent {
   disponibilite: string;
   avatar_url: string | null;
   has_video: boolean | null;
+  video_url: string | null;
+  video_presentation_url: string | null;
+  preuve_url: string | null;
+  realisation_url: string | null;
   utilisateurs: { prenom: string; nom: string; pays: string; ville: string } | null;
 }
 
@@ -34,18 +39,6 @@ const PAYS_LIST = [
   "Cameroun", "Togo", "Bénin", "Niger", "Mauritanie",
   "France", "Belgique", "Canada", "Maroc", "Autre",
 ];
-
-const DISPO: Record<string, { label: string; cls: string }> = {
-  "immédiate":  { label: "Dispo. immédiate", cls: "bg-blue-100 text-blue-800" },
-  "1 mois":     { label: "Dispo. 1 mois",    cls: "bg-orange-100 text-orange-700" },
-  "négociable": { label: "Négociable",        cls: "bg-gray-100 text-gray-600" },
-};
-
-// ─── Utilitaires ──────────────────────────────────────────────────────────────
-
-function initiales(prenom: string, nom: string) {
-  return `${prenom?.[0] ?? ""}${nom?.[0] ?? ""}`.toUpperCase() || "?";
-}
 
 // ─── Particules hero ──────────────────────────────────────────────────────────
 
@@ -89,71 +82,6 @@ function HeroParticles() {
         />
       ))}
     </>
-  );
-}
-
-// ─── Carte talent ─────────────────────────────────────────────────────────────
-
-function TalentCard({ t }: { t: Talent }) {
-  const prenom      = t.utilisateurs?.prenom ?? "";
-  const nom         = t.utilisateurs?.nom    ?? "";
-  const nom_complet = `${prenom} ${nom}`.trim() || "Talent";
-  const lieu        = [t.utilisateurs?.ville, t.utilisateurs?.pays].filter(Boolean).join(", ");
-  const dispo       = DISPO[t.disponibilite] ?? DISPO["négociable"];
-
-  return (
-    <div className="flex flex-col rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      <div className="h-2 w-full" style={{ backgroundColor: NAVY }} />
-      <div className="p-5 flex flex-col gap-3 flex-1">
-        <div className="flex items-center gap-3">
-          {t.avatar_url ? (
-            <img
-              src={t.avatar_url}
-              alt={nom_complet}
-              className="w-12 h-12 rounded-full object-cover shrink-0 border-2"
-              style={{ borderColor: NAVY + "33" }}
-            />
-          ) : (
-            <div
-              className="w-12 h-12 rounded-full shrink-0 flex items-center justify-center text-white text-base font-bold"
-              style={{ backgroundColor: NAVY }}
-            >
-              {initiales(prenom, nom)}
-            </div>
-          )}
-          <div className="min-w-0">
-            <p className="font-bold text-gray-900 truncate">{nom_complet}</p>
-            <p className="text-sm font-medium truncate" style={{ color: NAVY }}>
-              {t.metier_principal || "—"}
-            </p>
-          </div>
-        </div>
-        {lieu && (
-          <p className="text-xs text-gray-500 flex items-center gap-1">
-            <span>📍</span> {lieu}
-          </p>
-        )}
-        <div className="flex flex-wrap gap-2">
-          <span className={`text-xs font-semibold rounded-full px-2.5 py-1 ${dispo.cls}`}>
-            {dispo.label}
-          </span>
-          {t.has_video && (
-            <span className="text-xs font-semibold bg-blue-50 text-blue-600 rounded-full px-2.5 py-1">
-              ✓ Vidéo
-            </span>
-          )}
-        </div>
-      </div>
-      <div className="px-5 pb-5">
-        <Link
-          href={`/profil/${t.utilisateur_id}`}
-          className="block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: GOLD }}
-        >
-          Voir le profil
-        </Link>
-      </div>
-    </div>
   );
 }
 
@@ -234,7 +162,7 @@ export default function HomePage() {
       const [talentsRes, statsRes] = await Promise.all([
         supabase
           .from("talents")
-          .select("id, utilisateur_id, metier_principal, disponibilite, avatar_url, has_video, utilisateurs(prenom, nom, pays, ville)")
+          .select("id, utilisateur_id, metier_principal, disponibilite, avatar_url, has_video, video_url, video_presentation_url, preuve_url, realisation_url, utilisateurs(prenom, nom, pays, ville)")
           .eq("profil_public", true)
           .order("id", { ascending: false })
           .limit(6),
@@ -596,8 +524,24 @@ export default function HomePage() {
               <p className="text-gray-400 text-sm">Aucun talent dans cette catégorie pour l&apos;instant.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {talentsFiltres.map((t) => <TalentCard key={t.id} t={t} />)}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {talentsFiltres.map((t) => (
+                <TalentCardMedia
+                  key={t.id}
+                  id={t.utilisateur_id}
+                  prenom={t.utilisateurs?.prenom ?? ""}
+                  nom={t.utilisateurs?.nom ?? ""}
+                  metier={t.metier_principal}
+                  pays={t.utilisateurs?.pays}
+                  ville={t.utilisateurs?.ville}
+                  disponibilite={t.disponibilite}
+                  avatar_url={t.avatar_url ?? undefined}
+                  video_url={t.video_url ?? undefined}
+                  video_presentation_url={t.video_presentation_url ?? undefined}
+                  preuve_url={t.preuve_url ?? undefined}
+                  realisation_url={t.realisation_url ?? undefined}
+                />
+              ))}
             </div>
           )}
 
