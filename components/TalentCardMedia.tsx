@@ -58,7 +58,7 @@ export default function TalentCardMedia({
   }, [videoSrc]);
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 w-full max-w-2xl mx-auto">
+    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 w-full">
 
       {/* ── MÉDIA PRINCIPAL (vidéo ou photo) — grand format ── */}
       {videoSrc ? (

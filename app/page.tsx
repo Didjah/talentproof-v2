@@ -28,6 +28,7 @@ interface Talent {
   video_presentation_url: string | null;
   preuve_url: string | null;
   realisation_url: string | null;
+  telephone: string | null;
   whatsapp: string | null;
   utilisateurs: { prenom: string; nom: string; pays: string; ville: string; telephone: string } | null;
 }
@@ -168,7 +169,7 @@ export default function HomePage() {
       const [talentsRes, statsRes] = await Promise.all([
         supabase
           .from("talents")
-          .select("id, utilisateur_id, metier_principal, titre_profil, description_courte, competences_principales, annees_experience, niveau_experience, disponibilite, avatar_url, has_video, video_url, video_presentation_url, preuve_url, realisation_url, whatsapp, utilisateurs(prenom, nom, pays, ville, telephone)")
+          .select("id, utilisateur_id, metier_principal, titre_profil, description_courte, competences_principales, annees_experience, niveau_experience, disponibilite, avatar_url, has_video, video_url, video_presentation_url, preuve_url, realisation_url, telephone, whatsapp, utilisateurs(prenom, nom, pays, ville, telephone)")
           .eq("profil_public", true)
           .order("id", { ascending: false })
           .limit(6),
@@ -520,7 +521,7 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 pb-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-white h-48 animate-pulse border border-gray-100" />
               ))}
@@ -530,7 +531,7 @@ export default function HomePage() {
               <p className="text-gray-400 text-sm">Aucun talent dans cette catégorie pour l&apos;instant.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 pb-6">
               {talentsFiltres.map((t) => (
                 <TalentCardMedia
                   key={t.id}
@@ -548,7 +549,7 @@ export default function HomePage() {
                   pays={t.utilisateurs?.pays}
                   ville={t.utilisateurs?.ville}
                   disponibilite={t.disponibilite}
-                  telephone={t.whatsapp ?? t.utilisateurs?.telephone ?? undefined}
+                  telephone={t.telephone || t.utilisateurs?.telephone || undefined}
                   avatar_url={t.avatar_url ?? undefined}
                   video_url={t.video_url ?? undefined}
                   video_presentation_url={t.video_presentation_url ?? undefined}
