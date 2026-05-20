@@ -63,7 +63,7 @@ const METIERS = [
 
 export default function MetiersAfrique() {
   return (
-    <section className="bg-gradient-to-b from-[#0D1F3C] to-[#1B3A6B] py-16 px-4">
+    <section className="bg-[#0D1F3C] py-16 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Titre */}
         <div className="text-center mb-10">
@@ -75,7 +75,7 @@ export default function MetiersAfrique() {
         {/* Grille métiers */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {METIERS.map((m) => (
-            <div key={m.titre} className="bg-[#243E6E] border border-[#C9A84C]/30 shadow-lg rounded-2xl p-5 hover:bg-[#2a4880] transition-all">
+            <div key={m.titre} className="bg-[#1B3A6B] border border-[#C9A84C]/60 shadow-xl shadow-black/30 rounded-2xl p-5 hover:bg-[#243E6E] transition-all">
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -93,7 +93,7 @@ export default function MetiersAfrique() {
               {/* Pays */}
               <div className="flex flex-wrap gap-1 mb-3">
                 {m.pays.map((p) => (
-                  <span key={p} className="text-white/80 text-xs bg-[#1B3A6B] border border-white/30 px-2 py-0.5 rounded-full">{p}</span>
+                  <span key={p} className="text-white/80 text-xs bg-[#0D1F3C] border border-white/30 px-2 py-0.5 rounded-full">{p}</span>
                 ))}
               </div>
 
