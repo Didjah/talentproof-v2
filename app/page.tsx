@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/src/lib/supabase";
 import TalentCardMedia from "@/components/TalentCardMedia";
+import MetiersAfrique from "@/components/MetiersAfrique";
 
 const NAVY      = "#1B3A6B";
 const GOLD      = "#C9A84C";
@@ -488,6 +489,8 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      <MetiersAfrique />
 
       {/* ── SCROLL INDICATOR ─────────────────────────────────────────── */}
       <div
