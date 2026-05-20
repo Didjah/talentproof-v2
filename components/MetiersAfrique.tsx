@@ -6,7 +6,6 @@ const METIERS = [
     salaire: "2 500 – 3 500 €/mois",
     tension: "Critique",
     tensionColor: "bg-red-500 text-white",
-    visa: "Visa travail disponible",
     competences: ["Permis CE", "FIMO/FCO", "Expérience transport"],
   },
   {
@@ -16,7 +15,6 @@ const METIERS = [
     salaire: "2 000 – 3 000 €/mois",
     tension: "Forte",
     tensionColor: "bg-orange-500 text-white",
-    visa: "Visa travail disponible",
     competences: ["Maçonnerie", "Coffrage", "Enduit"],
   },
   {
@@ -26,7 +24,6 @@ const METIERS = [
     salaire: "2 200 – 3 200 €/mois",
     tension: "Forte",
     tensionColor: "bg-orange-500 text-white",
-    visa: "Visa travail disponible",
     competences: ["Installation électrique", "Câblage", "Habilitation"],
   },
   {
@@ -36,7 +33,6 @@ const METIERS = [
     salaire: "2 800 – 4 000 €/mois",
     tension: "Critique",
     tensionColor: "bg-red-500 text-white",
-    visa: "Procédure accélérée",
     competences: ["Diplôme infirmier", "Soins patients", "Urgences"],
   },
   {
@@ -46,7 +42,6 @@ const METIERS = [
     salaire: "2 500 – 3 500 €/mois",
     tension: "Modérée",
     tensionColor: "bg-yellow-400 text-gray-900",
-    visa: "Visa travail disponible",
     competences: ["Station totale", "AutoCAD", "SIG"],
   },
   {
@@ -56,7 +51,6 @@ const METIERS = [
     salaire: "1 800 – 2 800 €/mois",
     tension: "Forte",
     tensionColor: "bg-orange-500 text-white",
-    visa: "Visa travail disponible",
     competences: ["Cuisine africaine/européenne", "Hygiène HACCP", "Gestion stock"],
   },
 ];
@@ -104,8 +98,7 @@ export default function MetiersAfrique() {
                 ))}
               </div>
 
-              {/* Visa */}
-              <p className="text-green-400 text-xs">✓ {m.visa}</p>
+              <p className="text-white/40 text-xs mt-2 italic">Conditions selon recruteur</p>
             </div>
           ))}
         </div>
