@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 
 interface TalentCardMediaProps {
@@ -24,122 +24,100 @@ export default function TalentCardMedia({
   preuve_url, realisation_url, score,
 }: TalentCardMediaProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const cardRef  = useRef<HTMLDivElement>(null);
-  const [mediaType, setMediaType] = useState<"video" | "photo" | "avatar" | "none">("none");
-
-  // Priorité : video_presentation_url > video_url > realisation_url > preuve_url > avatar_url
-  const videoSrc  = video_presentation_url || video_url || null;
-  const photoSrc  = realisation_url || preuve_url || null;
-
-  useEffect(() => {
-    if (videoSrc)       setMediaType("video");
-    else if (photoSrc)  setMediaType("photo");
-    else if (avatar_url) setMediaType("avatar");
-    else                setMediaType("none");
-  }, [videoSrc, photoSrc, avatar_url]);
-
-  // Autoplay vidéo au scroll via Intersection Observer
-  useEffect(() => {
-    if (mediaType !== "video" || !videoRef.current) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (!videoRef.current) return;
-        if (entry.isIntersecting) {
-          videoRef.current.play().catch(() => {});
-        } else {
-          videoRef.current.pause();
-          videoRef.current.currentTime = 0;
-        }
-      },
-      { threshold: 0.6 }
-    );
-    obs.observe(videoRef.current);
-    return () => obs.disconnect();
-  }, [mediaType]);
+  const videoSrc = video_presentation_url || video_url || null;
+  const photoSrc = realisation_url || preuve_url || null;
 
   const badge = score && score >= 80 ? "Or 🥇" : score && score >= 50 ? "Argent 🥈" : score ? "Bronze 🥉" : null;
   const dispo = disponibilite === "immediate" || disponibilite === "Disponible immédiatement";
 
+  // Autoplay vidéo au scroll
+  useEffect(() => {
+    if (!videoRef.current || !videoSrc) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!videoRef.current) return;
+        if (entry.isIntersecting) videoRef.current.play().catch(() => {});
+        else { videoRef.current.pause(); videoRef.current.currentTime = 0; }
+      },
+      { threshold: 0.5 }
+    );
+    obs.observe(videoRef.current);
+    return () => obs.disconnect();
+  }, [videoSrc]);
+
   return (
-    <div ref={cardRef} className="relative rounded-2xl overflow-hidden shadow-xl bg-[#0D1F3C] group"
-      style={{ aspectRatio: "4/5", minWidth: 220 }}>
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 w-full">
 
-      {/* MÉDIA — vidéo ou photo plein cadre */}
-      {mediaType === "video" && videoSrc && (
-        <video
-          ref={videoRef}
-          src={videoSrc}
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
-      {mediaType === "photo" && photoSrc && (
-        <img
-          src={photoSrc}
-          alt={`${prenom} ${nom}`}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
-      {(mediaType === "avatar") && avatar_url && (
-        <img
-          src={avatar_url}
-          alt={`${prenom} ${nom}`}
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
-        />
-      )}
-      {mediaType === "none" && (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1B3A6B] to-[#0D1F3C]" />
-      )}
-
-      {/* Dégradé overlay bas */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-      {/* Badge type de média (coin haut droit) */}
-      {mediaType === "video" && (
-        <span className="absolute top-3 right-3 bg-purple-600/80 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
-          ▶ Preuve vidéo
-        </span>
-      )}
-      {mediaType === "photo" && (
-        <span className="absolute top-3 right-3 bg-emerald-600/80 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
-          📷 Réalisation
-        </span>
-      )}
-
-      {/* Badge score (coin haut gauche) */}
-      {badge && (
-        <span className="absolute top-3 left-3 bg-[#C9A84C]/90 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-          {badge}
-        </span>
-      )}
-
-      {/* Infos bas de carte */}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <div className="flex items-center gap-2 mb-1">
-          {avatar_url && (
-            <img src={avatar_url} alt="" className="w-8 h-8 rounded-full border-2 border-[#C9A84C] object-cover flex-shrink-0" />
-          )}
-          <div className="min-w-0">
-            <p className="text-white font-bold text-sm leading-tight truncate">{prenom} {nom}</p>
-            {metier && <p className="text-[#C9A84C] text-xs truncate">{metier}</p>}
+      {/* EN-TÊTE — identité talent */}
+      <div className="flex items-center gap-3 px-4 py-3">
+        {avatar_url ? (
+          <img src={avatar_url} alt="" className="w-11 h-11 rounded-full object-cover border-2 border-[#C9A84C]" />
+        ) : (
+          <div className="w-11 h-11 rounded-full bg-[#1B3A6B] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            {prenom?.[0]}{nom?.[0]}
           </div>
-        </div>
-        {(ville || pays) && (
-          <p className="text-white/70 text-xs mb-2">📍 {ville || pays}</p>
         )}
-        <div className="flex items-center gap-2">
-          {dispo && (
-            <span className="bg-green-500/20 border border-green-400/40 text-green-300 text-xs px-2 py-0.5 rounded-full">
-              Dispo. immédiat
-            </span>
-          )}
-          <Link href={`/profil/${id}`}
-            className="ml-auto bg-[#C9A84C] hover:bg-[#b8933d] text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors">
-            Voir →
-          </Link>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-[#1B3A6B] text-sm">{prenom} {nom}</span>
+            {badge && <span className="text-xs bg-[#C9A84C]/20 text-[#C9A84C] font-semibold px-2 py-0.5 rounded-full">{badge}</span>}
+            {dispo && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">● Dispo. immédiat</span>}
+          </div>
+          {metier && <p className="text-gray-500 text-xs truncate">🔧 {metier}</p>}
+          {(ville || pays) && <p className="text-gray-400 text-xs">📍 {ville || pays}</p>}
         </div>
+        <Link href={`/profil/${id}`}
+          className="flex-shrink-0 bg-[#1B3A6B] hover:bg-[#C9A84C] text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors">
+          Profil →
+        </Link>
+      </div>
+
+      {/* VIDÉO — pleine largeur si disponible */}
+      {videoSrc && (
+        <div className="w-full bg-black relative">
+          <span className="absolute top-2 left-2 z-10 bg-purple-600/80 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
+            ▶ Preuve vidéo
+          </span>
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            loop
+            playsInline
+            controls
+            className="w-full max-h-72 object-contain"
+          />
+        </div>
+      )}
+
+      {/* PHOTO RÉALISATION — pleine largeur si disponible */}
+      {photoSrc && (
+        <div className="w-full relative">
+          <span className="absolute top-2 left-2 z-10 bg-emerald-600/80 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
+            📷 Réalisation
+          </span>
+          <img
+            src={photoSrc}
+            alt="Réalisation"
+            className="w-full max-h-64 object-cover"
+          />
+        </div>
+      )}
+
+      {/* Si aucun média — placeholder */}
+      {!videoSrc && !photoSrc && (
+        <div className="w-full h-32 bg-gradient-to-r from-[#1B3A6B] to-[#C9A84C]/30 flex items-center justify-center">
+          <span className="text-white/50 text-sm">Pas encore de preuve visuelle</span>
+        </div>
+      )}
+
+      {/* PIED — bouton voir profil complet */}
+      <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+        <span className="text-gray-400 text-xs">TalentProof Africa</span>
+        <Link href={`/profil/${id}`}
+          className="text-[#C9A84C] hover:text-[#1B3A6B] text-xs font-semibold transition-colors">
+          Voir le profil complet →
+        </Link>
       </div>
     </div>
   );
