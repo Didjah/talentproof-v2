@@ -125,18 +125,17 @@ export default function TalentCardMedia({
         </div>
       )}
 
-      {/* ── 3. PHOTO réalisation pleine largeur (si disponible) ── */}
+      {/* ── 3. PHOTO réalisation (si disponible) ── */}
       {photoSrc && (
-        <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
-          <span className="absolute top-3 left-3 z-10 bg-emerald-600/85 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
-            📷 Réalisation
-          </span>
-          {badge && !videoSrc && (
-            <span className={`absolute top-3 right-3 z-10 text-xs font-bold px-3 py-1 rounded-full border ${badge.cls}`}>
-              {badge.label}
-            </span>
-          )}
-          <img src={photoSrc} alt="Réalisation" className="w-full h-full object-cover" />
+        <div className="px-5 pb-2">
+          <div className="flex items-center gap-2 mb-2 mt-4">
+            <div className="h-px flex-1 bg-gray-100" />
+            <span className="text-xs text-gray-400 font-medium">📷 Photo de réalisation</span>
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+          <div className="relative rounded-2xl overflow-hidden">
+            <img src={photoSrc} alt="Réalisation" className="w-full object-cover max-h-72" />
+          </div>
         </div>
       )}
 

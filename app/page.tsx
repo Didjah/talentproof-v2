@@ -479,7 +479,7 @@ export default function HomePage() {
       >
         {/* Wrapper animé — slide-up + fadeIn */}
         <div
-          className="px-4 pb-16"
+          className="pb-16"
           style={{
             opacity:    talentsVisible ? 1 : 0,
             transform:  talentsVisible ? "translateY(0)" : "translateY(100px)",
@@ -521,7 +521,7 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full px-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full px-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-white h-48 animate-pulse border border-gray-100" />
               ))}
@@ -531,7 +531,7 @@ export default function HomePage() {
               <p className="text-gray-400 text-sm">Aucun talent dans cette catégorie pour l&apos;instant.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full px-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full px-6">
               {talentsFiltres.map((t) => (
                 <TalentCardMedia
                   key={t.id}
