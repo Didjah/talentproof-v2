@@ -68,15 +68,15 @@ export default function TalentCardMedia({
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-[#1B3A6B] text-lg leading-tight">{prenom} {nom}</h3>
+              <h3 className="font-bold text-[#1B3A6B] text-xl break-words">{prenom} {nom}</h3>
               {dispo && (
                 <span className="text-xs bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
                   ● Disponible
                 </span>
               )}
             </div>
-            <p className="text-[#C9A84C] font-semibold text-sm mt-0.5">🔧 {metierLabel}</p>
-            <div className="flex items-center gap-3 mt-1 text-gray-400 text-xs flex-wrap">
+            <p className="text-gray-600 text-sm font-medium mt-0.5 truncate">🔧 {metierLabel}</p>
+            <div className="flex items-center gap-2 mt-1 text-gray-400 text-xs flex-wrap">
               {(ville || pays) && <span>📍 {ville || pays}</span>}
               {annees_experience && <span>⏱ {annees_experience} ans d&apos;exp.</span>}
               {niveau_experience && <span>· {niveau_experience}</span>}
@@ -85,13 +85,13 @@ export default function TalentCardMedia({
         </div>
 
         {description_courte && (
-          <p className="text-gray-600 text-sm mt-3 leading-relaxed line-clamp-2">{description_courte}</p>
+          <p className="text-gray-600 text-sm mt-3 italic line-clamp-3">{description_courte}</p>
         )}
 
         {competences && competences.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {competences.slice(0, 4).map((c, i) => (
-              <span key={i} className="text-xs bg-[#1B3A6B]/[0.08] text-[#1B3A6B] border border-[#1B3A6B]/20 px-2.5 py-0.5 rounded-full">
+              <span key={i} className="text-xs bg-[#1B3A6B]/[0.08] text-[#1B3A6B] border border-[#1B3A6B]/20 px-2.5 py-0.5 rounded-full max-w-[150px] truncate">
                 {c}
               </span>
             ))}
@@ -104,7 +104,7 @@ export default function TalentCardMedia({
 
       {/* ── 2. VIDÉO pleine largeur (si disponible) ── */}
       {videoSrc && (
-        <div className="relative bg-black w-full" style={{ aspectRatio: "16/9" }}>
+        <div className="relative bg-black w-full aspect-video">
           <span className="absolute top-3 left-3 z-10 bg-purple-600/85 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
             ▶ Preuve vidéo
           </span>
@@ -150,7 +150,7 @@ export default function TalentCardMedia({
       )}
 
       {/* ── 4. BOUTONS CONTACT ── */}
-      <div className="px-5 py-4 border-t border-gray-100 grid grid-cols-3 gap-2">
+      <div className="px-4 py-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
         {telephone && (
           <a href={`https://wa.me/${telephone.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
             className="flex items-center justify-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">

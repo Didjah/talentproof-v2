@@ -521,7 +521,7 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-4">
+            <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-3 sm:px-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-white h-48 animate-pulse border border-gray-100" />
               ))}
@@ -531,7 +531,7 @@ export default function HomePage() {
               <p className="text-gray-400 text-sm">Aucun talent dans cette catégorie pour l&apos;instant.</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-4">
+            <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto px-3 sm:px-6">
               {talentsFiltres.map((t) => (
                 <TalentCardMedia
                   key={t.id}
