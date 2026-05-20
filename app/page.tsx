@@ -164,6 +164,8 @@ export default function HomePage() {
   const indicatorRef = useRef<HTMLDivElement>(null);
   const indicatorVisibleRef = useRef(false);
   const [talentsVisible, setTalentsVisible] = useState(false);
+  const talentsVisibleRef = useRef(false);
+  const touchStartYRef = useRef(0);
 
   const [talents, setTalents] = useState<Talent[]>([]);
   const [stats,   setStats]   = useState<Stats>({ talents: 0, offres: 0, pays: 15 });
@@ -185,44 +187,37 @@ export default function HomePage() {
     return () => obs.disconnect();
   }, []);
 
-  // Révèle les talents sur scroll actif (wheel ↓ ou touchmove ↓) quand l'indicateur est visible
+  // Drawer mobile — effet unique, listeners montés une seule fois, refs pour l'état courant
   useEffect(() => {
-    if (talentsVisible) return;
-
-    const reveal = () => { setTalentsVisible(true); };
-
-    const handleWheel = (e: WheelEvent) => { if (e.deltaY > 0) reveal(); };
-
-    let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
-    const handleTouchMove  = (e: TouchEvent) => { if (touchStartY - e.touches[0].clientY > 5) reveal(); };
-
-    window.addEventListener("wheel",      handleWheel,      { passive: true });
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchmove",  handleTouchMove,  { passive: true });
-    return () => {
-      window.removeEventListener("wheel",      handleWheel);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove",  handleTouchMove);
-    };
-  }, [talentsVisible]);
-
-  // Referme le drawer au scroll vers le haut quand l'indicateur est visible
-  useEffect(() => {
-    if (!talentsVisible) return;
-
-    const close = () => {
-      if (indicatorVisibleRef.current) {
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY > 0 && !talentsVisibleRef.current) {
+        talentsVisibleRef.current = true;
+        setTalentsVisible(true);
+      } else if (e.deltaY < 0 && talentsVisibleRef.current && indicatorVisibleRef.current) {
+        talentsVisibleRef.current = false;
         setTalentsVisible(false);
         indicatorRef.current?.scrollIntoView({ behavior: "smooth" });
       }
     };
 
-    const handleWheel = (e: WheelEvent) => { if (e.deltaY < 0) close(); };
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartYRef.current = e.touches[0].clientY;
+    };
 
-    let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
-    const handleTouchMove  = (e: TouchEvent) => { if (touchStartY - e.touches[0].clientY < -5) close(); };
+    const handleTouchMove = (e: TouchEvent) => {
+      const currentY = e.touches[0].clientY;
+      const delta = touchStartYRef.current - currentY;
+      if (delta > 5 && !talentsVisibleRef.current) {
+        talentsVisibleRef.current = true;
+        setTalentsVisible(true);
+        touchStartYRef.current = currentY;
+      } else if (delta < -5 && talentsVisibleRef.current && indicatorVisibleRef.current) {
+        talentsVisibleRef.current = false;
+        setTalentsVisible(false);
+        touchStartYRef.current = currentY;
+        indicatorRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
 
     window.addEventListener("wheel",      handleWheel,      { passive: true });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
@@ -232,7 +227,7 @@ export default function HomePage() {
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove",  handleTouchMove);
     };
-  }, [talentsVisible]);
+  }, []);
 
   useEffect(() => {
     async function load() {
