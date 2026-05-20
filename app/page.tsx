@@ -16,6 +16,11 @@ interface Talent {
   id: string;
   utilisateur_id: string;
   metier_principal: string;
+  titre_profil: string | null;
+  description_courte: string | null;
+  competences_principales: string | null;
+  annees_experience: number | null;
+  niveau_experience: string | null;
   disponibilite: string;
   avatar_url: string | null;
   has_video: boolean | null;
@@ -23,7 +28,8 @@ interface Talent {
   video_presentation_url: string | null;
   preuve_url: string | null;
   realisation_url: string | null;
-  utilisateurs: { prenom: string; nom: string; pays: string; ville: string } | null;
+  whatsapp: string | null;
+  utilisateurs: { prenom: string; nom: string; pays: string; ville: string; telephone: string } | null;
 }
 
 interface Stats {
@@ -162,7 +168,7 @@ export default function HomePage() {
       const [talentsRes, statsRes] = await Promise.all([
         supabase
           .from("talents")
-          .select("id, utilisateur_id, metier_principal, disponibilite, avatar_url, has_video, video_url, video_presentation_url, preuve_url, realisation_url, utilisateurs(prenom, nom, pays, ville)")
+          .select("id, utilisateur_id, metier_principal, titre_profil, description_courte, competences_principales, annees_experience, niveau_experience, disponibilite, avatar_url, has_video, video_url, video_presentation_url, preuve_url, realisation_url, whatsapp, utilisateurs(prenom, nom, pays, ville, telephone)")
           .eq("profil_public", true)
           .order("id", { ascending: false })
           .limit(6),
@@ -532,14 +538,24 @@ export default function HomePage() {
                   prenom={t.utilisateurs?.prenom ?? ""}
                   nom={t.utilisateurs?.nom ?? ""}
                   metier={t.metier_principal}
+                  titre_poste={t.titre_profil ?? undefined}
+                  description_courte={t.description_courte ?? undefined}
+                  competences={
+                    t.competences_principales
+                      ? t.competences_principales.split(/[,\n;]+/).map(s => s.trim()).filter(Boolean)
+                      : undefined
+                  }
                   pays={t.utilisateurs?.pays}
                   ville={t.utilisateurs?.ville}
                   disponibilite={t.disponibilite}
+                  telephone={t.whatsapp ?? t.utilisateurs?.telephone ?? undefined}
                   avatar_url={t.avatar_url ?? undefined}
                   video_url={t.video_url ?? undefined}
                   video_presentation_url={t.video_presentation_url ?? undefined}
                   preuve_url={t.preuve_url ?? undefined}
                   realisation_url={t.realisation_url ?? undefined}
+                  annees_experience={t.annees_experience ?? undefined}
+                  niveau_experience={t.niveau_experience ?? undefined}
                 />
               ))}
             </div>
